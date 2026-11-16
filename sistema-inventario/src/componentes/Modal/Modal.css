@@ -35,10 +35,10 @@
 
 
 .product-modal {
-  width: min(100%,620px);
-  max-width: 620px;
+  width: min(100%,660px);
+  max-width: 660px;
   max-height: calc(100vh - 40px);
-  padding: 26px 28px 22px;
+  padding: 20px 24px 18px;
   overflow: auto;
   background: var(--surface);
   border: 1px solid var(--line);
@@ -49,7 +49,7 @@
 
 
 
-.product-modal .modal-header { margin-bottom: 22px; }
+.product-modal .modal-header { margin-bottom: 14px; }
 
 
 
@@ -61,17 +61,17 @@
 
 
 
-.product-modal .form-grid { gap: 16px 18px; }
+.product-modal .form-grid { gap: 10px 14px; }
 
+.product-modal .field { gap: 5px; color: var(--ink); font-size: 11px; font-weight: 600; }
 
-
-.product-modal .field { gap: 7px; color: var(--ink); font-size: 11px; font-weight: 600; }
+.movement-type-label { display: block; padding: 10px 12px; color: var(--ink); background: var(--surface); border: 1px solid var(--border); border-radius: 6px; font-weight: 500; }
 
 
 
 .product-modal .field input,
 .product-modal .field select {
-  height: 43px;
+  height: 39px;
   padding: 0 12px;
   color: var(--ink);
   background: #fff;
@@ -106,20 +106,24 @@
 .product-modal .stock-fields {
   display: grid;
   min-width: 0;
-  grid-template-columns: repeat(2,minmax(0,1fr));
-  gap: 12px 16px;
+  grid-template-columns: repeat(auto-fit,minmax(200px,1fr));
+  gap: 9px 14px;
   margin: 2px 0 0;
-  padding: 13px 15px 15px;
+  padding: 10px 12px 12px;
   background: #f7f2e8;
   border: 1px solid var(--line);
   border-radius: 9px;
 }
 
-.product-modal .unit-quantity-fields {
+.product-modal .unit-quantity-control {
   display: grid;
-  grid-template-columns: repeat(2,minmax(0,1fr));
-  gap: 13px 16px;
+  min-width: 0;
+  grid-template-columns: minmax(0,1fr) minmax(0,1fr);
+  gap: 8px;
 }
+
+.product-modal .unit-quantity-control input,
+.product-modal .unit-quantity-control select { min-width: 0; }
 
 
 .product-modal .stock-fields legend { padding: 0 6px; color: var(--ink); font-size: 12px; font-weight: 700; }
@@ -130,11 +134,9 @@
 
 
 
-.product-modal .modal-actions { margin-top: 1px; padding-top: 17px; border-color: var(--line); }
+.product-modal .modal-actions { margin-top: 1px; padding-top: 12px; border-color: var(--line); }
 
-
-
-.product-modal .modal-actions .button { min-height: 41px; padding: 0 17px; font-size: 12px; }
+.product-modal .modal-actions .button { min-height: 38px; padding: 0 17px; font-size: 12px; }
 
 
 

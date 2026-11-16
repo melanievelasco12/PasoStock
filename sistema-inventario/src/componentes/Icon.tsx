@@ -3,7 +3,7 @@ import { Fragment as _Fragment, jsx as _jsx, jsxs as _jsxs } from 'react/jsx-run
 export type IconName = 'grid' | 'box' | 'arrows' | 'chart' | 'search' | 'bell' | 'plus'
     | 'edit' | 'trash' | 'download' | 'close' | 'leaf' | 'mail' | 'lock' | 'eye'
     | 'eyeOff' | 'arrowRight' | 'home' | 'tag' | 'users' | 'settings' | 'archive' | 'phone'
-    | 'pin' | 'check' | 'entrada' | 'salida';
+    | 'pin' | 'check' | 'entrada' | 'salida' | 'filter';
 
 export function Icon({ name }: { name: IconName }) {
     const paths = {
@@ -12,6 +12,7 @@ export function Icon({ name }: { name: IconName }) {
         arrows: _jsxs(_Fragment, { children: [_jsx("path", { d: "M7 7h13l-3-3M17 17H4l3 3" }), _jsx("path", { d: "M20 7 17 10M4 17l3-3" })] }),
         chart: _jsxs(_Fragment, { children: [_jsx("path", { d: "M4 19V5M4 19h17" }), _jsx("path", { d: "m7 15 4-4 3 2 6-7" })] }),
         search: _jsxs(_Fragment, { children: [_jsx("circle", { cx: "10.8", cy: "10.8", r: "6.8" }), _jsx("path", { d: "m16 16 4.5 4.5" })] }),
+        filter: _jsx(_Fragment, { children: _jsx("path", { d: "M3 4h18l-7 8v7l-4 2v-9L3 4Z" }) }),
         bell: _jsx(_Fragment, { children: _jsx("path", { d: "M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4" }) }),
         plus: _jsx(_Fragment, { children: _jsx("path", { d: "M12 5v14M5 12h14" }) }),
         edit: _jsx(_Fragment, { children: _jsx("path", { d: "m14 5 5 5M4 20l4-.8L19 8a2.1 2.1 0 0 0-3-3L5 16l-1 4Z" }) }),

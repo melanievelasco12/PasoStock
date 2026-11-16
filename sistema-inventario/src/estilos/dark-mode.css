@@ -35,9 +35,6 @@
 .dark-theme .preference-option small,
 .dark-theme .infoMovimiento strong,
 .dark-theme .infoMovimiento span,
-.dark-theme .report-result-count,
-.dark-theme .movement-filter-count,
-.dark-theme .report-filter,
 .dark-theme .footer { color: #e7e4dc; }
 .dark-theme .page-subtitle,
 .dark-theme .eyebrow,
@@ -62,6 +59,36 @@
 .dark-theme .report-download-options button:focus-visible { background: #303a33; }
 .dark-theme .pagination-page-size select,
 .dark-theme .pagination-controls button { color: #e7e4dc; background: #303a33; border-color: #48594b; }
+.dark-theme .table-column-filter,
+.dark-theme .movement-type-label { color: #e7e4dc; background: #1a211c; border-color: #48544a; }
+.dark-theme .movement-filter-accordion,
+.dark-theme .movement-more-filters,
+.dark-theme .movement-extra-filters { color: #e7e4dc; background: #222925; border-color: #48544a; }
+.dark-theme .movement-filter-option { border-color: #48544a; }
+.dark-theme .movement-filter-option > summary,
+.dark-theme .movement-filter-option-list button { color: #e7e4dc; }
+.dark-theme .movement-filter-option-value { color: #bac3bb; }
+.dark-theme .movement-filter-option-list button:hover,
+.dark-theme .movement-filter-option-list button[aria-pressed="true"] { color: #d4e4d3; background: #304337; }
+.dark-theme .movement-date-range-inputs label { color: #bac3bb; }
+.dark-theme .movement-date-range-inputs input { color: #e7e4dc; background: #1a211c; border-color: #48544a; color-scheme: dark; }
+.dark-theme .movement-more-filters:hover,
+.dark-theme .movement-more-filters:focus-visible { background: #303a33; }
+.dark-theme .table-filter-toolbar { border-color: #48544a; }
+.dark-theme .table-filter-menu,
+.dark-theme .table-filter-toggle,
+.dark-theme .table-filter-popover { color: #e7e4dc; background: #222925; border-color: #48544a; }
+.dark-theme .table-filter-option { border-color: #48544a; }
+.dark-theme .table-filter-option > summary,
+.dark-theme .table-filter-option-list button { color: #e7e4dc; }
+.dark-theme .table-filter-option-value { color: #bac3bb; }
+.dark-theme .table-filter-option-list button:hover,
+.dark-theme .table-filter-option-list button[aria-pressed="true"] { color: #d4e4d3; background: #304337; }
+.dark-theme .table-filter-date-range label { color: #bac3bb; }
+.dark-theme .table-filter-date-range input { color: #e7e4dc; background: #1a211c; border-color: #48544a; color-scheme: dark; }
+.dark-theme .table-filter-toggle:hover,
+.dark-theme .table-filter-toggle:focus-visible { background: #303a33; }
+.dark-theme .table-filter-badge { border-color: #222925; }
 .dark-theme td { border-color: #374139; }
 .dark-theme tbody tr:hover { background: #2c352f; }
 .dark-theme .product-avatar { color: #d4e4d3; background: #34443a; }
@@ -73,8 +100,6 @@
 .dark-theme .movement-type.salida { color: #f0c99d; background: #4a3828; }
 .dark-theme .products-table-panel tbody tr.low-stock-row { background: #3b2928; }
 .dark-theme .products-table-panel tbody tr.low-stock-row:hover { background: #4a302e; }
-.dark-theme .product-status-filter { color: #e7e4dc; }
-.dark-theme .product-status-filter select { color: #e7e4dc; background: #303a33; border-color: #48594b; }
 .dark-theme .pildoraSaludable,
 .dark-theme .status-ok,
 .dark-theme .movement-type.entrada { color: #d4e4d3; background: #304337; }
@@ -87,16 +112,12 @@
 .dark-theme .report-chart-legend li { color: #dddcd5; }
 .dark-theme .report-chart-legend strong { color: #f0eee8; }
 .dark-theme .report-chart-legend li:hover { background: #303a33; }
-.dark-theme .report-filter select,
-.dark-theme .movement-date-filter select,
 .dark-theme .settings-panel .field input,
 .dark-theme .settings-panel .field input[readonly] {
     color: #e7e4dc;
     background: #1a211c;
     border-color: #48544a;
 }
-.dark-theme .report-filter select:focus-visible,
-.dark-theme .movement-date-filter select:focus-visible,
 .dark-theme .settings-panel .field input:focus-visible { border-color: #9ab59a; }
 .dark-theme .preference-option,
 .dark-theme .resumenActividad { background: #29312b; border-color: #414c43; }
@@ -108,7 +129,6 @@
 .dark-theme .shortcut-card small { color: #e7e4dc; }
 .dark-theme .entry-shortcut { color: #d4e4d3; background: #304337; }
 .dark-theme .exit-shortcut { color: #f0c99d; background: #4a3828; }
-.dark-theme .movement-date-filter,
 .dark-theme .encabezadoActividad,
 .dark-theme .encabezadoActividad > span { color: #c5cdc5; }
 .dark-theme .listaMovimientos li { border-color: #39443c; }
