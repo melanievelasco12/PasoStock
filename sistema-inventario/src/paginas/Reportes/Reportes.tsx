@@ -1,6 +1,9 @@
 import { useState } from 'react';
 import Table from '../../componentes/Table/Table';
+import Pagination from '../../componentes/Table/Pagination';
+import { usePagination } from '../../componentes/Table/usePagination';
 import { Icon } from '../../componentes/Icon';
+import { formatUnitAmount } from '../../utils/formatters';
 import { EmptyState, StatCard, StatusBadge } from '../../componentes/common';
 import type { CategoryStock, DailyMovementTotals, Movement, MovementType, Product } from '../../types';
 
@@ -130,12 +133,14 @@ interface ReportsProps {
     products: Product[];
     movements: Movement[];
     lowStock: Product[];
-    onExport: () => void;
+    onExportCsv: () => void;
+    onExportPdf: () => void | Promise<void>;
 }
 
-export default function Reports({ products, movements, lowStock, onExport }: ReportsProps) {
+export default function Reports({ products, movements, lowStock, onExportCsv, onExportPdf }: ReportsProps) {
     const [statusFilter, setStatusFilter] = useState('all');
     const [categoryFilter, setCategoryFilter] = useState('');
+    const [downloadOpen, setDownloadOpen] = useState(false);
     const entries = movements.filter((movement) => movement.type === 'entrada').reduce((sum, item) => sum + item.quantity, 0);
     const exits = movements.filter((movement) => movement.type === 'salida').reduce((sum, item) => sum + item.quantity, 0);
     const categories = [...new Set(products.map((product) => product.category))].sort((a, b) => a.localeCompare(b, 'es'));
@@ -145,6 +150,7 @@ export default function Reports({ products, movements, lowStock, onExport }: Rep
         const matchesStatus = statusFilter === 'all' || (statusFilter === 'low' ? product.stock <= product.minStock : product.stock > product.minStock);
         return matchesStatus && (!categoryFilter || product.category === categoryFilter);
     });
+    const pagination = usePagination(filteredProducts);
 
     return (
         <div className="reports-content">
@@ -184,7 +190,24 @@ export default function Reports({ products, movements, lowStock, onExport }: Rep
                         <h2>Estado actual del inventario</h2>
                         <p>{lowStock.length} productos requieren reposición</p>
                     </div>
-                    <button className="button button-outline" onClick={onExport}><Icon name="download" />Descargar CSV</button>
+                    <div className="report-download-menu">
+                        <button
+                            type="button"
+                            className="button button-outline"
+                            aria-expanded={downloadOpen}
+                            aria-controls="report-download-options"
+                            onClick={() => setDownloadOpen((open) => !open)}
+                        >
+                            <Icon name="download" />
+                            Descargar
+                        </button>
+                        {downloadOpen && (
+                            <div className="report-download-options" id="report-download-options" role="group" aria-label="Formato de descarga">
+                                <button type="button" onClick={() => { setDownloadOpen(false); onExportCsv(); }}>CSV</button>
+                                <button type="button" onClick={() => { setDownloadOpen(false); void onExportPdf(); }}>PDF</button>
+                            </div>
+                        )}
+                    </div>
                 </div>
                 <div className="report-filters">
                     <label className="field report-filter">
@@ -205,34 +228,54 @@ export default function Reports({ products, movements, lowStock, onExport }: Rep
                     <span className="report-result-count">{filteredProducts.length} de {products.length} productos</span>
                 </div>
                 {filteredProducts.length === 0
-                    ? <EmptyState title="No hay productos para estos filtros" detail="Cambia el estado o la categoría para consultar otros productos." />
+                    ? (
+                        <>
+                            <EmptyState title="No hay productos para estos filtros" detail="Cambia el estado o la categoría para consultar otros productos." />
+                            <Pagination
+                                totalItems={0}
+                                page={pagination.page}
+                                pageSize={pagination.pageSize}
+                                onPageChange={pagination.setPage}
+                                onPageSizeChange={pagination.setPageSize}
+                            />
+                        </>
+                    )
                     : (
-                        <Table>
-                            <table>
-                                <thead>
-                                    <tr>
-                                        <th>Código</th>
-                                        <th>Producto</th>
-                                        <th>Categoría</th>
-                                        <th>Existencias</th>
-                                        <th>Mínimo</th>
-                                        <th>Estado</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {filteredProducts.map((product) => (
-                                        <tr key={product.id}>
-                                            <td className="code-cell">{product.code}</td>
-                                            <td><strong>{product.name}</strong></td>
-                                            <td>{product.category}</td>
-                                            <td><strong>{product.stock} {product.unit}</strong></td>
-                                            <td>{product.minStock} {product.unit}</td>
-                                            <td><StatusBadge low={product.stock <= product.minStock} /></td>
+                        <>
+                            <Table>
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th>Código</th>
+                                            <th>Producto</th>
+                                            <th>Categoría</th>
+                                            <th>Existencias</th>
+                                            <th>Mínimo</th>
+                                            <th>Estado</th>
                                         </tr>
-                                    ))}
-                                </tbody>
-                            </table>
-                        </Table>
+                                    </thead>
+                                    <tbody>
+                                        {pagination.items.map((product) => (
+                                            <tr key={product.id}>
+                                                <td className="code-cell">{product.code}</td>
+                                                <td><strong>{product.name}</strong></td>
+                                                <td>{product.category}</td>
+                                                <td><strong>{product.stock} × {formatUnitAmount(product.unitAmount, product.unit)}</strong></td>
+                                                <td>{product.minStock} unidades</td>
+                                                <td><StatusBadge low={product.stock <= product.minStock} /></td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </Table>
+                            <Pagination
+                                totalItems={filteredProducts.length}
+                                page={pagination.page}
+                                pageSize={pagination.pageSize}
+                                onPageChange={pagination.setPage}
+                                onPageSizeChange={pagination.setPageSize}
+                            />
+                        </>
                     )}
             </section>
         </div>

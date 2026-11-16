@@ -115,6 +115,11 @@
   border-radius: 9px;
 }
 
+.product-modal .unit-quantity-fields {
+  display: grid;
+  grid-template-columns: repeat(2,minmax(0,1fr));
+  gap: 13px 16px;
+}
 
 
 .product-modal .stock-fields legend { padding: 0 6px; color: var(--ink); font-size: 12px; font-weight: 700; }

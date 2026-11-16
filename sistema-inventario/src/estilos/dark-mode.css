@@ -21,6 +21,7 @@
 .dark-theme .stat-detail,
 .dark-theme .table-meta,
 .dark-theme .table-meta span:first-child,
+.dark-theme .table-pagination,
 .dark-theme th,
 .dark-theme td,
 .dark-theme td strong,
@@ -54,6 +55,13 @@
 .dark-theme .settings-panel { background: #222925; }
 .dark-theme th,
 .dark-theme .products-table-panel th { color: #d3d9d2; background: #303a33; }
+.dark-theme .table-pagination { border-color: #374139; }
+.dark-theme .report-download-options { background: #222925; border-color: #48594b; }
+.dark-theme .report-download-options button { color: #e7e4dc; }
+.dark-theme .report-download-options button:hover,
+.dark-theme .report-download-options button:focus-visible { background: #303a33; }
+.dark-theme .pagination-page-size select,
+.dark-theme .pagination-controls button { color: #e7e4dc; background: #303a33; border-color: #48594b; }
 .dark-theme td { border-color: #374139; }
 .dark-theme tbody tr:hover { background: #2c352f; }
 .dark-theme .product-avatar { color: #d4e4d3; background: #34443a; }
@@ -63,6 +71,10 @@
 .dark-theme .warning-pill,
 .dark-theme .pildoraAlerta,
 .dark-theme .movement-type.salida { color: #f0c99d; background: #4a3828; }
+.dark-theme .products-table-panel tbody tr.low-stock-row { background: #3b2928; }
+.dark-theme .products-table-panel tbody tr.low-stock-row:hover { background: #4a302e; }
+.dark-theme .product-status-filter { color: #e7e4dc; }
+.dark-theme .product-status-filter select { color: #e7e4dc; background: #303a33; border-color: #48594b; }
 .dark-theme .pildoraSaludable,
 .dark-theme .status-ok,
 .dark-theme .movement-type.entrada { color: #d4e4d3; background: #304337; }

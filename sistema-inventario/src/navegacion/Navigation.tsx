@@ -4,7 +4,7 @@ import type { IconName } from '../componentes/Icon';
 import type { PageView, Product } from '../types';
 
 const navigationItems: readonly (readonly [PageView, string, IconName])[] = [
-  ['dashboard', 'Inicio', 'home'],
+  ['dashboard', 'Dashboard', 'home'],
   ['products', 'Productos', 'box'],
   ['movements', 'Movimientos', 'arrows'],
   ['reports', 'Reportes', 'chart'],

@@ -1,5 +1,7 @@
 import { useState } from 'react';
 import Table from '../../componentes/Table/Table';
+import Pagination from '../../componentes/Table/Pagination';
+import { usePagination } from '../../componentes/Table/usePagination';
 import { EmptyState } from '../../componentes/common';
 import type { Movement, MovementType } from '../../types';
 
@@ -120,52 +122,74 @@ interface MovementTableProps {
 }
 
 export function MovementTable({ movements, hasDateFilter }: MovementTableProps) {
+    const pagination = usePagination(movements);
+
     if (!movements.length) {
-        return hasDateFilter
-            ? <EmptyState title="No hay movimientos para esta fecha" detail="Prueba con otro día, mes o año, o limpia los filtros." />
-            : <EmptyState title="Aún no hay movimientos" detail="Cuando registres una entrada o salida aparecerá aquí." />;
+        return (
+            <>
+                {hasDateFilter
+                    ? <EmptyState title="No hay movimientos para esta fecha" detail="Prueba con otro día, mes o año, o limpia los filtros." />
+                    : <EmptyState title="Aún no hay movimientos" detail="Cuando registres una entrada o salida aparecerá aquí." />}
+                <Pagination
+                    totalItems={0}
+                    page={pagination.page}
+                    pageSize={pagination.pageSize}
+                    onPageChange={pagination.setPage}
+                    onPageSizeChange={pagination.setPageSize}
+                />
+            </>
+        );
     }
 
     return (
-        <Table>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Producto</th>
-                        <th>Tipo</th>
-                        <th>Cantidad</th>
-                        <th>Nota</th>
-                        <th>Fecha</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {movements.map((movement) => {
-                        const date = getMovementDate(movement.createdAt);
-                        return (
-                            <tr key={movement.id}>
-                                <td>
-                                    <div className="product-cell">
-                                        <div className="product-avatar">{movement.productName.slice(0, 1).toUpperCase()}</div>
-                                        <div><strong>{movement.productName}</strong></div>
-                                    </div>
-                                </td>
-                                <td>
-                                    <span className={`movement-type ${movement.type}`}>
-                                        {movement.type === 'entrada' ? '↓ Entrada' : '↑ Salida'}
-                                    </span>
-                                </td>
-                                <td>
-                                    <strong className={movement.type === 'entrada' ? 'positive-quantity' : 'negative-quantity'}>
-                                        {movement.type === 'entrada' ? '+' : '−'}{movement.quantity}
-                                    </strong>
-                                </td>
-                                <td>{movement.note || <span className="muted-unit">—</span>}</td>
-                                <td>{date ? movementDateTime.format(date) : '—'}</td>
-                            </tr>
-                        );
-                    })}
-                </tbody>
-            </table>
-        </Table>
+        <>
+            <Table>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Producto</th>
+                            <th>Tipo</th>
+                            <th>Cantidad</th>
+                            <th>Nota</th>
+                            <th>Fecha</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {pagination.items.map((movement) => {
+                            const date = getMovementDate(movement.createdAt);
+                            return (
+                                <tr key={movement.id}>
+                                    <td>
+                                        <div className="product-cell">
+                                            <div className="product-avatar">{movement.productName.slice(0, 1).toUpperCase()}</div>
+                                            <div><strong>{movement.productName}</strong></div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <span className={`movement-type ${movement.type}`}>
+                                            {movement.type === 'entrada' ? '↓ Entrada' : '↑ Salida'}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <strong className={movement.type === 'entrada' ? 'positive-quantity' : 'negative-quantity'}>
+                                            {movement.type === 'entrada' ? '+' : '−'}{movement.quantity}
+                                        </strong>
+                                    </td>
+                                    <td>{movement.note || <span className="muted-unit">—</span>}</td>
+                                    <td>{date ? movementDateTime.format(date) : '—'}</td>
+                                </tr>
+                            );
+                        })}
+                    </tbody>
+                </table>
+            </Table>
+            <Pagination
+                totalItems={movements.length}
+                page={pagination.page}
+                pageSize={pagination.pageSize}
+                onPageChange={pagination.setPage}
+                onPageSizeChange={pagination.setPageSize}
+            />
+        </>
     );
 }

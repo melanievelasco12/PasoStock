@@ -2,7 +2,7 @@ import { useState } from 'react';
 import Table from '../../componentes/Table/Table';
 import { Icon } from '../../componentes/Icon';
 import { StatCard, StatusBadge } from '../../componentes/common';
-import { dateTime } from '../../utils/formatters';
+import { dateTime, formatUnitAmount } from '../../utils/formatters';
 import type { Movement, Product } from '../../types';
 import estilos from './Inicio.module.css';
 
@@ -100,10 +100,14 @@ export default function Dashboard({ products, movements, lowStock, onProducts, o
                       </td>
                       <td>
                         <strong className="stock-current">{product.stock}</strong>{' '}
-                        {product.unit && <span className="muted-unit">{product.unit}</span>}
+                        <span className="muted-unit">
+                          {product.unit === 'unidad' && product.unitAmount === 1
+                            ? 'unidades'
+                            : `${formatUnitAmount(product.unitAmount, product.unit)} por producto`}
+                        </span>
                       </td>
                       <td>
-                        {product.minStock} {product.unit && <span className="muted-unit">{product.unit}</span>}
+                        {product.minStock} <span className="muted-unit">unidades</span>
                       </td>
                       <td><StatusBadge low /></td>
                     </tr>

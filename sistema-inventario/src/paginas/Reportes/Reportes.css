@@ -58,8 +58,38 @@
 .report-heading { align-items: center; padding: 17px; border-bottom: 1px solid #edf0ed; }
 
 .report-heading { border-color: #ece3d6; }
+.report-heading { position: relative; z-index: 2; }
 
 .report-table .panel-heading { padding: 17px 18px 13px; }
+
+.report-download-menu { position: relative; z-index: 3; }
+
+.report-download-options {
+    position: absolute;
+    top: calc(100% + 5px);
+    right: 0;
+    display: grid;
+    min-width: 120px;
+    padding: 5px;
+    background: #fffcf6;
+    border: 1px solid #e1d7c8;
+    border-radius: 7px;
+    box-shadow: 0 8px 20px #463d321f;
+}
+
+.report-download-options button {
+    padding: 8px 10px;
+    color: #463d32;
+    background: transparent;
+    border: 0;
+    border-radius: 4px;
+    text-align: left;
+    cursor: pointer;
+    font: inherit;
+}
+
+.report-download-options button:hover,
+.report-download-options button:focus-visible { background: #f1eee5; outline: 0; }
 
 .report-filters { display: flex; align-items: end; flex-wrap: wrap; gap: 10px; padding: 0 18px 14px; }
 

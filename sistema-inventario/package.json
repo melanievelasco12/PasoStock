@@ -12,16 +12,20 @@
   },
   "dependencies": {
     "firebase": "^13.0.0",
+    "jspdf": "^4.2.1",
     "react": "^19.3.1",
     "react-dom": "^19.3.1"
   },
   "devDependencies": {
-    "@vitejs/plugin-react": "^6.1.2",
     "@types/node": "^22.15.30",
     "@types/react": "^19.1.6",
     "@types/react-dom": "^19.1.6",
+    "@vitejs/plugin-react": "^6.1.2",
     "oxlint": "^1.88.0",
     "typescript": "^5.8.3",
     "vite": "^8.3.4"
+  },
+  "overrides": {
+    "@grpc/grpc-js": "1.13.6"
   }
 }

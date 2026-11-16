@@ -2,7 +2,7 @@ import { Fragment as _Fragment, jsx as _jsx, jsxs as _jsxs } from 'react/jsx-run
 
 export type IconName = 'grid' | 'box' | 'arrows' | 'chart' | 'search' | 'bell' | 'plus'
     | 'edit' | 'trash' | 'download' | 'close' | 'leaf' | 'mail' | 'lock' | 'eye'
-    | 'eyeOff' | 'arrowRight' | 'home' | 'tag' | 'users' | 'settings' | 'phone'
+    | 'eyeOff' | 'arrowRight' | 'home' | 'tag' | 'users' | 'settings' | 'archive' | 'phone'
     | 'pin' | 'check' | 'entrada' | 'salida';
 
 export function Icon({ name }: { name: IconName }) {
@@ -28,6 +28,7 @@ export function Icon({ name }: { name: IconName }) {
         tag: _jsxs(_Fragment, { children: [_jsx("path", { d: "m20.6 13.4-7.2 7.2a2 2 0 0 1-2.8 0l-7.2-7.2a2 2 0 0 1 0-2.8l7.2-7.2A2 2 0 0 1 12 3h7a2 2 0 0 1 2 2v7a2 2 0 0 1-.4 1.4Z" }), _jsx("circle", { cx: "16", cy: "8", r: "1" })] }),
         users: _jsx(_Fragment, { children: _jsx("path", { d: "M16 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2M10 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8ZM20 8v6M23 11h-6" }) }),
         settings: _jsxs(_Fragment, { children: [_jsx("circle", { cx: "12", cy: "12", r: "3" }), _jsx("path", { d: "m19.4 15 .1.1 1.4 1.1-1.4 2.4-1.7-.7a8 8 0 0 1-1.8 1l-.3 1.8h-2.8l-.3-1.8a8 8 0 0 1-1.8-1l-1.7.7-1.4-2.4L7.1 15a8 8 0 0 1 0-2l-1.4-1.1 1.4-2.4 1.7.7a8 8 0 0 1 1.8-1l.3-1.8h2.8l.3 1.8a8 8 0 0 1 1.8 1l1.7-.7 1.4 2.4-1.4 1.1a8 8 0 0 1-.1 2Z" })] }),
+        archive: _jsxs(_Fragment, { children: [_jsx("path", { d: "M3 4h18v4H3z" }), _jsx("path", { d: "M5 8v12h14V8M10 12h4" })] }),
         phone: _jsx(_Fragment, { children: _jsx("path", { d: "M21 16.4v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.4 19.4 0 0 1-6-6A19.8 19.8 0 0 1 1.1 3.7 2 2 0 0 1 3.1 1.5h3a2 2 0 0 1 2 1.7c.1 1 .4 2 .7 2.9a2 2 0 0 1-.5 2.1L7 9.5a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.5c.9.3 1.9.6 2.9.7a2 2 0 0 1 1.7 2Z" }) }),
         pin: _jsxs(_Fragment, { children: [_jsx("path", { d: "M20 10c0 5-8 12-8 12S4 15 4 10a8 8 0 1 1 16 0Z" }), _jsx("circle", { cx: "12", cy: "10", r: "2.5" })] }),
         check: _jsx("path", { d: "m5 12 4 4L19 6" }),

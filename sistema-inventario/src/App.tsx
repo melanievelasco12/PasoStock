@@ -1,7 +1,7 @@
 import { browserLocalPersistence, browserSessionPersistence, createUserWithEmailAndPassword, GoogleAuthProvider, onAuthStateChanged, sendPasswordResetEmail, setPersistence, signInWithEmailAndPassword, signInWithPopup, signOut, updateProfile, type User } from 'firebase/auth';
 import { useEffect, useState, type ComponentProps, type ElementType, type FormEvent, type Key, type ReactElement } from 'react';
 import { auth, firebaseConfigured } from './config/firebase';
-import { createProduct, deleteProduct, getInventoryErrorMessage, registerMovement, subscribeToInventory, subscribeToCategories, updateProduct } from './config/firestore';
+import { createProduct, deleteProduct, getInventoryErrorMessage, registerMovement, setProductActive, subscribeToInventory, subscribeToCategories, updateProduct } from './config/firestore';
 import { Icon } from './componentes/Icon';
 import Modal from './componentes/Modal/Modal';
 import Sidebar from './navegacion/Sidebar';
@@ -14,6 +14,7 @@ import Settings from './paginas/Configuracion/Configuracion';
 import { pageDescriptions } from './paginas/pageDescriptions';
 import { authErrorMessage, isFirebaseAuthError } from './utils/authErrorMessage';
 import { categorySlug, normalizeLabel } from './utils/categories';
+import { formatUnitAmount } from './utils/formatters';
 import type { Category, ModalView, Movement, MovementType, PageView, Product } from './types';
 import { Fragment as _Fragment, jsx as jsxRuntime, jsxs as jsxsRuntime } from 'react/jsx-runtime';
 
@@ -23,6 +24,30 @@ function _jsx<T extends ElementType>(type: T, props: ComponentProps<T>, key?: Ke
 
 function _jsxs<T extends ElementType>(type: T, props: ComponentProps<T>, key?: Key): ReactElement {
     return jsxsRuntime(type, props, key);
+}
+const productUnits = [
+    { value: 'unidad', label: 'Unidad (u)' },
+    { value: 'kg', label: 'Kilogramo (kg)' },
+    { value: 'g', label: 'Gramo (g)' },
+    { value: 'lb', label: 'Libra (lb)' },
+    { value: 'oz', label: 'Onza (oz)' },
+    { value: 'litro', label: 'Litro (L)' },
+    { value: 'mililitro', label: 'Mililitro (ml)' },
+    { value: 'galon', label: 'Galón (gal)' },
+    { value: 'tonelada', label: 'Tonelada (t)' },
+    { value: 'caja', label: 'Caja' },
+    { value: 'paquete', label: 'Paquete' },
+    { value: 'docena', label: 'Docena' },
+    { value: 'metro', label: 'Metro (m)' },
+    { value: 'centimetro', label: 'Centímetro (cm)' },
+    { value: 'par', label: 'Par' },
+    { value: 'rollo', label: 'Rollo' },
+    { value: 'saco', label: 'Saco' },
+    { value: 'botella', label: 'Botella' },
+] as const;
+
+function isProductUnit(value: string): boolean {
+    return productUnits.some((unit) => unit.value === value);
 }
 function App() {
     const [user, setUser] = useState<User | null>(null);
@@ -330,8 +355,9 @@ function App() {
     if (inventoryStatus === 'error') {
         return _jsx(AccessErrorScreen, { message: firestoreError, onRetry: () => window.location.reload(), onSignOut: handleSignOut });
     }
-    const lowStock = products.filter((product) => product.stock <= product.minStock);
-    const totalUnits = products.reduce((sum, product) => sum + product.stock, 0);
+    const activeProducts = products.filter((product) => product.active);
+    const lowStock = activeProducts.filter((product) => product.stock <= product.minStock);
+    const totalUnits = activeProducts.reduce((sum, product) => sum + product.stock, 0);
     const displayName = profileName.trim() || user.email?.split('@')[0]?.split(/[._-]+/).filter(Boolean).map((part) => part.charAt(0).toLocaleUpperCase('es') + part.slice(1)).join(' ') || 'Usuario';
     const filteredProducts = products.filter((product) => {
         const query = productSearch.trim().toLowerCase();
@@ -403,6 +429,8 @@ function App() {
         const rawPrice = String(form.get('price') ?? '').trim();
         const price = Number(rawPrice);
         const unit = String(form.get('unit') ?? '').trim();
+        const rawUnitAmount = String(form.get('unitAmount') ?? '').trim();
+        const unitAmount = Number(rawUnitAmount);
         const minStock = Number(form.get('minStock'));
         const initialStock = Number(form.get('stock'));
         if (!category || category.length > 80 || !/[\p{L}\p{N}]/u.test(category) || !categorySlug(category)) {
@@ -411,6 +439,14 @@ function App() {
         }
         if (brand.length > 80) {
             setNotice('La marca debe tener máximo 80 caracteres.');
+            return;
+        }
+        if (!isProductUnit(unit) && unit !== editingProduct?.unit) {
+            setNotice('Selecciona una unidad de medida de la lista.');
+            return;
+        }
+        if (!/^\d{1,9}(?:\.\d{1,3})?$/.test(rawUnitAmount) || !Number.isFinite(unitAmount) || unitAmount <= 0 || unitAmount > 999999999) {
+            setNotice('Ingresa una cantidad por unidad válida, mayor que cero y con máximo tres decimales.');
             return;
         }
         if (!name || !Number.isInteger(minStock) || minStock < 0) {
@@ -436,11 +472,11 @@ function App() {
         setSaving(true);
         try {
             if (editingProduct) {
-                await updateProduct({ ...editingProduct, name, brand, category, price, unit, minStock });
+                await updateProduct({ ...editingProduct, name, brand, category, price, unit, unitAmount, minStock });
                 setNotice('Producto actualizado en Firestore.');
             }
             else {
-                await createProduct({ code, name, brand, category, price, unit, stock: initialStock, minStock }, signedInUser.uid);
+                await createProduct({ code, name, brand, category, price, unit, unitAmount, stock: initialStock, minStock }, signedInUser.uid);
                 setNotice('Producto registrado en Firestore.');
             }
             setModal(null);
@@ -453,8 +489,12 @@ function App() {
         }
     }
     async function handleDeleteProduct(product: Product) {
-        if (movements.some((movement) => movement.productId === product.id)) {
+        if (product.movementCount > 0 || movements.some((movement) => movement.productId === product.id)) {
             setNotice('No se puede eliminar este producto porque tiene movimientos asociados.');
+            return;
+        }
+        if (product.stock > 0) {
+            setNotice('No se puede eliminar un producto que todavía tiene existencias.');
             return;
         }
         if (!window.confirm(`¿Eliminar "${product.name}" del inventario?`))
@@ -462,6 +502,17 @@ function App() {
         try {
             await deleteProduct(product);
             setNotice('Producto eliminado de Firestore.');
+        }
+        catch (error) {
+            setNotice(getInventoryErrorMessage(error));
+        }
+    }
+    async function handleSetProductActive(product: Product, active: boolean) {
+        try {
+            await setProductActive(product.id, active);
+            setNotice(active
+                ? `Se reactivó "${product.name}".`
+                : `Se desactivó "${product.name}" y se conservó su historial.`);
         }
         catch (error) {
             setNotice(getInventoryErrorMessage(error));
@@ -481,11 +532,15 @@ function App() {
             setNotice('Selecciona un producto e ingresa una cantidad entera mayor que cero.');
             return;
         }
+        if (!product.active) {
+            setNotice('No se pueden registrar movimientos para un producto desactivado.');
+            return;
+        }
         setSaving(true);
         try {
             await registerMovement(product.id, movementType, quantity, note, signedInUser.uid);
             setModal(null);
-            setNotice(`Se registró la ${movementType} de ${quantity}${product.unit ? ` ${product.unit}` : ''} en Firestore.`);
+            setNotice(`Se registró la ${movementType} de ${quantity} producto(s), ${formatUnitAmount(product.unitAmount, product.unit)} por producto, en Firestore.`);
         }
         catch (error) {
             setNotice(getInventoryErrorMessage(error));
@@ -494,16 +549,16 @@ function App() {
             setSaving(false);
         }
     }
-    function exportReport(): void {
+    function exportReportCsv(): void {
         const rows = [
-            ['Código', 'Producto', 'Marca', 'Categoría', 'Existencias', 'Unidad', 'Stock mínimo', 'Estado'],
-            ...products.map((product) => [
+            ['Código', 'Producto', 'Marca', 'Categoría', 'Existencias (productos)', 'Contenido por unidad', 'Stock mínimo (productos)', 'Estado'],
+            ...activeProducts.map((product) => [
                 product.code,
                 product.name,
                 product.brand,
                 product.category,
                 String(product.stock),
-                product.unit,
+                formatUnitAmount(product.unitAmount, product.unit),
                 String(product.minStock),
                 product.stock <= product.minStock ? 'Stock bajo' : 'Disponible',
             ]),
@@ -515,10 +570,80 @@ function App() {
         link.download = 'reporte-inventario.csv';
         link.click();
         window.setTimeout(() => URL.revokeObjectURL(url), 1000);
-        setNotice('Reporte de inventario descargado.');
+        setNotice('Reporte de inventario descargado en CSV.');
+    }
+    async function exportReportPdf(): Promise<void> {
+        try {
+            const { jsPDF } = await import('jspdf');
+            const pdf = new jsPDF({ orientation: 'landscape' });
+            const margin = 14;
+            const widths = [22, 45, 32, 38, 27, 38, 34, 30];
+            const headers = ['Código', 'Producto', 'Marca', 'Categoría', 'Existencias (productos)', 'Contenido por unidad', 'Stock mínimo (productos)', 'Estado'];
+            const pageHeight = pdf.internal.pageSize.getHeight();
+            let y = 31;
+
+            pdf.setFont('helvetica', 'bold');
+            pdf.setFontSize(16);
+            pdf.text('Reporte de inventario', margin, 16);
+            pdf.setFont('helvetica', 'normal');
+            pdf.setFontSize(9);
+            pdf.text(`Generado el ${new Intl.DateTimeFormat('es-EC', { dateStyle: 'long' }).format(today)}`, margin, 23);
+
+            const drawHeader = () => {
+                let x = margin;
+                pdf.setFont('helvetica', 'bold');
+                pdf.setFontSize(8);
+                pdf.setFillColor(232, 240, 233);
+                pdf.setDrawColor(205, 216, 205);
+                headers.forEach((header, index) => {
+                    pdf.rect(x, y, widths[index], 9, 'FD');
+                    pdf.text(header, x + 2, y + 6);
+                    x += widths[index];
+                });
+                y += 9;
+                pdf.setFont('helvetica', 'normal');
+                pdf.setFontSize(8);
+            };
+
+            drawHeader();
+            activeProducts.forEach((product) => {
+                const values = [
+                    product.code,
+                    product.name,
+                    product.brand,
+                    product.category,
+                    String(product.stock),
+                    formatUnitAmount(product.unitAmount, product.unit),
+                    String(product.minStock),
+                    product.stock <= product.minStock ? 'Stock bajo' : 'Disponible',
+                ];
+                const lines = values.map((value, index) => pdf.splitTextToSize(value || '-', widths[index] - 4));
+                const rowHeight = Math.max(9, ...lines.map((cellLines) => cellLines.length * 4 + 4));
+
+                if (y + rowHeight > pageHeight - margin) {
+                    pdf.addPage();
+                    y = margin;
+                    drawHeader();
+                }
+
+                let x = margin;
+                lines.forEach((cellLines, index) => {
+                    pdf.rect(x, y, widths[index], rowHeight);
+                    pdf.text(cellLines, x + 2, y + 5);
+                    x += widths[index];
+                });
+                y += rowHeight;
+            });
+
+            pdf.save('reporte-inventario.pdf');
+            setNotice('Reporte de inventario descargado en PDF.');
+        }
+        catch (error) {
+            setNotice(`No se pudo generar el PDF: ${error instanceof Error ? error.message : 'Error inesperado.'}`);
+        }
     }
     const titles: Record<PageView, string> = {
-        dashboard: 'Inicio',
+        dashboard: 'Dashboard',
         products: 'Catálogo de Productos',
         movements: 'Movimientos',
         reports: 'Reportes',
@@ -530,8 +655,8 @@ function App() {
                                                                         setSearch('');
                                                                         setView('products');
                                                                         setNotificationsOpen(false);
-                                                                    }, children: [_jsx("span", { className: "notification-item-icon", children: _jsx(Icon, { name: "bell" }) }), _jsxs("span", { className: "notification-item-copy", children: [_jsxs("strong", { children: ["Stock bajo: ", product.name] }), _jsxs("small", { children: [product.stock, product.unit ? ` ${product.unit}` : '', " disponibles \u00B7 m\u00EDnimo ", product.minStock, product.unit ? ` ${product.unit}` : ''] })] }), _jsx(Icon, { name: "arrowRight" })] }) }, product.id))) })
-                                                        : _jsxs("div", { className: "notification-empty", children: [_jsx("span", { className: "notification-empty-icon", children: _jsx(Icon, { name: "check" }) }), _jsx("strong", { children: "No tienes alertas" }), _jsx("p", { children: "Las alertas de stock aparecer\u00E1n aqu\u00ED cuando un producto llegue a su m\u00EDnimo." })] })] }))] }), _jsx("div", { className: "top-avatar", "aria-hidden": "true", children: displayName.slice(0, 1).toUpperCase() }), _jsx("span", { className: "top-user-name", children: displayName })] })] }), _jsxs("div", { className: "content", children: [notice && _jsxs("div", { className: "toast", role: "status", children: [notice, _jsx("button", { "aria-label": "Cerrar aviso", onClick: () => setNotice(''), children: _jsx(Icon, { name: "close" }) })] }), _jsxs("div", { className: "page-heading", children: [_jsxs("div", { children: [_jsx("p", { className: "eyebrow", children: "GESTI\u00D3N DE EXISTENCIAS" }), _jsx("h1", { children: view === 'dashboard' ? `¡Hola, ${displayName}!` : titles[view] }), _jsx("p", { className: "page-subtitle", children: view === 'dashboard' ? 'Resumen de la actividad y el estado actual de tu inventario.' : pageDescriptions[view] })] }), _jsxs("div", { className: `heading-actions ${view === 'dashboard' ? 'dashboard-heading-actions' : ''}`, children: [view === 'movements' && _jsxs("div", { className: "search-box", children: [_jsx(Icon, { name: "search" }), _jsx("input", { value: search, onChange: (event) => setSearch(event.target.value), placeholder: 'Buscar movimiento...' })] }), view === 'dashboard' && _jsxs(_Fragment, { children: [_jsxs("button", { className: "button button-primary", onClick: () => { setMovementType('entrada'); setModal('movement'); }, children: [_jsx(Icon, { name: "plus" }), "Registrar movimiento"] }), _jsxs("button", { className: "button button-primary", onClick: () => openProduct(), children: [_jsx(Icon, { name: "plus" }), "Nuevo producto"] })] }), view === 'products' && _jsxs("button", { className: "button button-primary", onClick: () => openProduct(), children: [_jsx(Icon, { name: "plus" }), "Nuevo Producto"] }), view === 'movements' && _jsxs("button", { className: "button button-primary", onClick: () => { setMovementType('entrada'); setModal('movement'); }, children: [_jsx(Icon, { name: "plus" }), "Nuevo movimiento"] }), view === 'reports' && _jsxs("button", { className: "button button-primary", onClick: exportReport, children: [_jsx(Icon, { name: "download" }), "Exportar CSV"] })] })] }), view === 'products' && _jsxs("form", { className: "products-search search-box", role: "search", onSubmit: submitProductSearch, children: [_jsx(Icon, { name: "search" }), _jsx("input", { type: "search", "aria-label": "Buscar productos por nombre, c\u00F3digo o categor\u00EDa", value: productSearch, onChange: (event) => setProductSearch(event.target.value), placeholder: "Buscar por nombre o categor\u00EDa..." }), _jsx("button", { type: "submit", className: "top-search-submit", "aria-label": "Buscar productos", children: _jsx(Icon, { name: "arrowRight" }) })] }), view === 'dashboard' && _jsx(Dashboard, { products: products, movements: movements, lowStock: lowStock, totalUnits: totalUnits, onProducts: () => setView('products'), onMovements: () => setView('movements') }), view === 'products' && _jsx(Products, { products: filteredProducts, hasSearch: Boolean(productSearch.trim()), onEdit: openProduct, onDelete: handleDeleteProduct }), view === 'movements' && _jsx(Movements, { movements: filteredMovements, onNew: (type) => { setMovementType(type); setModal('movement'); } }), view === 'reports' && _jsx(Reports, { products: products, movements: movements, lowStock: lowStock, onExport: exportReport }), view === 'settings' && _jsx(Settings, { user: user, profileName: profileName, compactView: compactView, darkMode: darkMode, saving: saving, onSubmit: submitSettings }), _jsxs("footer", { className: "footer", children: [_jsx("span", { children: "\u00A9 2026 PasoStock" }), _jsx("span", { children: "Prototipo acad\u00E9mico \u00B7 Sistema de control de inventario" })] })] })] }), modal === 'product' && _jsx(Modal, { className: "product-modal-backdrop", onClose: () => setModal(null), children: _jsxs("section", { ref: setProductDialogElement, className: "modal product-modal", role: "dialog", "aria-modal": "true", "aria-labelledby": "product-modal-title", "aria-describedby": "product-modal-description", tabIndex: -1, children: [_jsxs("div", { className: "modal-header", children: [_jsxs("div", { children: [_jsx("p", { className: "eyebrow", children: editingProduct ? 'ACTUALIZAR INFORMACIÓN' : 'AÑADIR AL INVENTARIO' }), _jsx("h2", { id: "product-modal-title", children: editingProduct ? 'Editar Producto' : 'Nuevo Producto' }), _jsx("p", { className: "product-modal-description", id: "product-modal-description", children: editingProduct ? 'Actualiza los datos de este producto.' : 'Completa los datos para agregarlo al catálogo.' })] }), _jsx("button", { className: "icon-button", "aria-label": "Cerrar", onClick: () => setModal(null), children: _jsx(Icon, { name: "close" }) })] }), _jsxs("form", { onSubmit: submitProduct, className: "form-grid", children: [_jsxs("label", { className: "field", children: ["Nombre del producto", _jsx("input", { name: "name", required: true, defaultValue: editingProduct?.name ?? '', placeholder: "Ej. Comino molido" })] }), _jsxs("label", { className: "field", children: ["Marca", _jsx("input", { name: "brand", maxLength: 80, defaultValue: editingProduct?.brand ?? '', placeholder: "Ej. Mi marca" })] }), _jsxs("label", { className: "field", children: ["Categor\u00EDa", _jsx("input", { name: "category", list: "product-categories", required: true, value: categorySelection, onChange: (event) => setCategorySelection(event.target.value), autoComplete: "off", placeholder: categories.length ? "Selecciona o escribe una categor\u00EDa" : "Escribe una categor\u00EDa" }), _jsx("datalist", { id: "product-categories", children: categories.map((category) => _jsx("option", { value: category.name }, category.id)) }), _jsx("small", { children: categoryError || "Puedes elegir una sugerencia o escribir una nueva; se guardar\u00E1 al guardar el producto." })] }), _jsxs("label", { className: "field", children: ["Precio ($)", _jsx("input", { name: "price", type: "number", min: "0", max: "999999999", step: "0.01", required: true, defaultValue: editingProduct?.price ?? '0.00', placeholder: "0.00" })] }), _jsxs("label", { className: "field", children: ["C\u00F3digo", _jsx("input", { name: "code", disabled: Boolean(editingProduct), defaultValue: editingProduct?.code ?? '', placeholder: "Ej. ESP-001" }), _jsx("small", { children: "Identificador permanente del producto." })] }), _jsxs("label", { className: "field", children: ["Unidad de medida", _jsx("input", { name: "unit", defaultValue: editingProduct?.unit ?? '', placeholder: "Ej. unidad, kg, lb" })] }), _jsxs("fieldset", { className: "stock-fields full-field", "aria-describedby": "stock-fields-hint", children: [_jsx("legend", { children: "Existencias y reposici\u00F3n" }), _jsx("p", { id: "stock-fields-hint", children: "Define el inventario disponible y el nivel m\u00EDnimo." }), !editingProduct && _jsxs("label", { className: "field", children: ["Stock inicial", _jsx("input", { name: "stock", type: "number", min: "0", step: "1", required: true, defaultValue: "0" }), _jsx("small", { children: "Se registrar\u00E1 como una entrada inicial." })] }), _jsxs("label", { className: "field", children: ["Stock m\u00EDnimo", _jsx("input", { name: "minStock", type: "number", min: "0", step: "1", required: true, defaultValue: editingProduct?.minStock ?? 5 })] })] }), _jsxs("div", { className: "modal-actions", children: [_jsx("button", { type: "button", className: "button button-plain", onClick: () => setModal(null), children: "Cancelar" }), _jsx("button", { className: "button button-primary", disabled: saving, children: saving ? 'Guardando...' : 'Guardar' })] })] })] }) }), modal === 'movement' && _jsx(Modal, { onClose: () => setModal(null), children: _jsxs("section", { className: "modal", role: "dialog", "aria-modal": "true", "aria-labelledby": "movement-modal-title", children: [_jsxs("div", { className: "modal-header", children: [_jsxs("div", { children: [_jsx("p", { className: "eyebrow", children: "CONTROL DE EXISTENCIAS" }), _jsx("h2", { id: "movement-modal-title", children: "Registrar movimiento" })] }), _jsx("button", { className: "icon-button", "aria-label": "Cerrar", onClick: () => setModal(null), children: _jsx(Icon, { name: "close" }) })] }), _jsxs("form", { onSubmit: submitMovement, className: "form-grid", children: [_jsxs("label", { className: "field full-field", children: ["Tipo de movimiento", _jsxs("select", { value: movementType, onChange: (event) => setMovementType(event.target.value), children: [_jsx("option", { value: "entrada", children: "Entrada de mercader\u00EDa" }), _jsx("option", { value: "salida", children: "Salida de mercader\u00EDa" })] })] }), _jsxs("label", { className: "field full-field", children: ["Producto", _jsxs("select", { name: "productId", required: true, defaultValue: "", children: [_jsx("option", { value: "", disabled: true, children: "Selecciona un producto" }), products.map((product) => _jsxs("option", { value: product.id, children: [product.name, " \u00B7 ", product.stock, " ", product.unit, " disponibles"] }, product.id))] })] }), _jsxs("label", { className: "field full-field", children: ["Cantidad", _jsx("input", { name: "quantity", type: "number", min: "1", step: "1", required: true, placeholder: "Ej. 10" })] }), _jsxs("label", { className: "field full-field", children: ["Nota ", _jsx("span", { className: "optional", children: "(opcional)" }), _jsx("input", { name: "note", maxLength: 120, placeholder: "Ej. Reposici\u00F3n de proveedor" })] }), _jsxs("div", { className: "modal-actions", children: [_jsx("button", { type: "button", className: "button button-plain", onClick: () => setModal(null), children: "Cancelar" }), _jsx("button", { className: "button button-primary", disabled: saving, children: saving ? 'Guardando...' : `Confirmar ${movementType}` })] })] })] }) })] }));
+                                                                    }, children: [_jsx("span", { className: "notification-item-icon", children: _jsx(Icon, { name: "bell" }) }), _jsxs("span", { className: "notification-item-copy", children: [_jsxs("strong", { children: ["Stock bajo: ", product.name] }), _jsxs("small", { children: [product.stock, " productos disponibles \u00B7 m\u00EDnimo ", product.minStock, " productos \u00B7 ", formatUnitAmount(product.unitAmount, product.unit), " por producto"] })] }), _jsx(Icon, { name: "arrowRight" })] }) }, product.id))) })
+                                                        : _jsxs("div", { className: "notification-empty", children: [_jsx("span", { className: "notification-empty-icon", children: _jsx(Icon, { name: "check" }) }), _jsx("strong", { children: "No tienes alertas" }), _jsx("p", { children: "Las alertas de stock aparecer\u00E1n aqu\u00ED cuando un producto llegue a su m\u00EDnimo." })] })] }))] }), _jsx("div", { className: "top-avatar", "aria-hidden": "true", children: displayName.slice(0, 1).toUpperCase() }), _jsx("span", { className: "top-user-name", children: displayName })] })] }), _jsxs("div", { className: "content", children: [notice && _jsxs("div", { className: "toast", role: "status", children: [notice, _jsx("button", { "aria-label": "Cerrar aviso", onClick: () => setNotice(''), children: _jsx(Icon, { name: "close" }) })] }), _jsxs("div", { className: "page-heading", children: [_jsxs("div", { children: [_jsx("p", { className: "eyebrow", children: "GESTI\u00D3N DE EXISTENCIAS" }), _jsx("h1", { children: view === 'dashboard' ? `¡Hola, ${displayName}!` : titles[view] }), _jsx("p", { className: "page-subtitle", children: view === 'dashboard' ? 'Resumen de la actividad y el estado actual de tu inventario.' : pageDescriptions[view] })] }), _jsxs("div", { className: `heading-actions ${view === 'dashboard' ? 'dashboard-heading-actions' : ''}`, children: [view === 'movements' && _jsxs("div", { className: "search-box", children: [_jsx(Icon, { name: "search" }), _jsx("input", { value: search, onChange: (event) => setSearch(event.target.value), placeholder: 'Buscar movimiento...' })] }), view === 'dashboard' && _jsxs(_Fragment, { children: [_jsxs("button", { className: "button button-primary", onClick: () => { setMovementType('entrada'); setModal('movement'); }, children: [_jsx(Icon, { name: "plus" }), "Registrar movimiento"] }), _jsxs("button", { className: "button button-primary", onClick: () => openProduct(), children: [_jsx(Icon, { name: "plus" }), "Nuevo producto"] })] }), view === 'products' && _jsxs("button", { className: "button button-primary", onClick: () => openProduct(), children: [_jsx(Icon, { name: "plus" }), "Nuevo Producto"] }), view === 'movements' && _jsxs("button", { className: "button button-primary", onClick: () => { setMovementType('entrada'); setModal('movement'); }, children: [_jsx(Icon, { name: "plus" }), "Nuevo movimiento"] }), ] })] }), view === 'products' && _jsxs("form", { className: "products-search search-box", role: "search", onSubmit: submitProductSearch, children: [_jsx(Icon, { name: "search" }), _jsx("input", { type: "search", "aria-label": "Buscar productos por nombre, c\u00F3digo o categor\u00EDa", value: productSearch, onChange: (event) => setProductSearch(event.target.value), placeholder: "Buscar por nombre o categor\u00EDa..." }), _jsx("button", { type: "submit", className: "top-search-submit", "aria-label": "Buscar productos", children: _jsx(Icon, { name: "arrowRight" }) })] }), view === 'dashboard' && _jsx(Dashboard, { products: activeProducts, movements: movements, lowStock: lowStock, totalUnits: totalUnits, onProducts: () => setView('products'), onMovements: () => setView('movements') }), view === 'products' && _jsx(Products, { products: filteredProducts, hasSearch: Boolean(productSearch.trim()), onEdit: openProduct, onDelete: handleDeleteProduct, onSetActive: handleSetProductActive }), view === 'movements' && _jsx(Movements, { movements: filteredMovements, onNew: (type) => { setMovementType(type); setModal('movement'); } }), view === 'reports' && _jsx(Reports, { products: activeProducts, movements: movements, lowStock: lowStock, onExportCsv: exportReportCsv, onExportPdf: exportReportPdf }), view === 'settings' && _jsx(Settings, { user: user, profileName: profileName, compactView: compactView, darkMode: darkMode, saving: saving, onSubmit: submitSettings }), _jsxs("footer", { className: "footer", children: [_jsx("span", { children: "\u00A9 2026 PasoStock" }), _jsx("span", { children: "Prototipo acad\u00E9mico \u00B7 Sistema de control de inventario" })] })] })] }), modal === 'product' && _jsx(Modal, { className: "product-modal-backdrop", onClose: () => setModal(null), children: _jsxs("section", { ref: setProductDialogElement, className: "modal product-modal", role: "dialog", "aria-modal": "true", "aria-labelledby": "product-modal-title", "aria-describedby": "product-modal-description", tabIndex: -1, children: [_jsxs("div", { className: "modal-header", children: [_jsxs("div", { children: [_jsx("p", { className: "eyebrow", children: editingProduct ? 'ACTUALIZAR INFORMACIÓN' : 'AÑADIR AL INVENTARIO' }), _jsx("h2", { id: "product-modal-title", children: editingProduct ? 'Editar Producto' : 'Nuevo Producto' }), _jsx("p", { className: "product-modal-description", id: "product-modal-description", children: editingProduct ? 'Actualiza los datos de este producto.' : 'Completa los datos para agregarlo al catálogo.' })] }), _jsx("button", { className: "icon-button", "aria-label": "Cerrar", onClick: () => setModal(null), children: _jsx(Icon, { name: "close" }) })] }), _jsxs("form", { onSubmit: submitProduct, className: "form-grid", children: [_jsxs("label", { className: "field", children: ["Nombre del producto", _jsx("input", { name: "name", required: true, defaultValue: editingProduct?.name ?? '', placeholder: "Ej. Comino molido" })] }), _jsxs("label", { className: "field", children: ["Marca", _jsx("input", { name: "brand", maxLength: 80, defaultValue: editingProduct?.brand ?? '', placeholder: "Ej. Mi marca" })] }), _jsxs("label", { className: "field", children: ["Categor\u00EDa", _jsx("input", { name: "category", list: "product-categories", required: true, value: categorySelection, onChange: (event) => setCategorySelection(event.target.value), autoComplete: "off", placeholder: categories.length ? "Selecciona o escribe una categor\u00EDa" : "Escribe una categor\u00EDa" }), _jsx("datalist", { id: "product-categories", children: categories.map((category) => _jsx("option", { value: category.name }, category.id)) }), _jsx("small", { children: categoryError || "Puedes elegir una sugerencia o escribir una nueva; se guardar\u00E1 al guardar el producto." })] }), _jsxs("label", { className: "field", children: ["Precio ($)", _jsx("input", { name: "price", type: "number", min: "0", max: "999999999", step: "0.01", required: true, defaultValue: editingProduct?.price ?? '0.00', placeholder: "0.00" })] }), _jsxs("label", { className: "field", children: ["C\u00F3digo", _jsx("input", { name: "code", disabled: Boolean(editingProduct), defaultValue: editingProduct?.code ?? '', placeholder: "Ej. ESP-001" }), _jsx("small", { children: "Identificador permanente del producto." })] }), _jsxs("div", { className: "full-field unit-quantity-fields", children: [_jsxs("label", { className: "field", children: ["Unidad de medida", _jsx("select", { name: "unit", required: true, defaultValue: editingProduct?.unit ?? 'unidad', children: [...(editingProduct?.unit && !isProductUnit(editingProduct.unit) ? [_jsx("option", { value: editingProduct.unit, children: editingProduct.unit }, editingProduct.unit)] : []), ...productUnits.map((unit) => _jsx("option", { value: unit.value, children: unit.label }, unit.value))] }), _jsx("small", { children: "La unidad se selecciona de opciones predeterminadas." })] }), _jsxs("label", { className: "field", children: ["Cantidad por unidad", _jsx("input", { name: "unitAmount", type: "number", min: "0.001", max: "999999999", step: "0.001", required: true, defaultValue: editingProduct?.unitAmount ?? 1 }), _jsx("small", { children: "Contenido de cada producto seg\u00FAn la unidad elegida." })] })] }), _jsxs("fieldset", { className: "stock-fields full-field", "aria-describedby": "stock-fields-hint", children: [_jsx("legend", { children: "Existencias y reposici\u00F3n" }), _jsx("p", { id: "stock-fields-hint", children: "Define los productos disponibles y el nivel m\u00EDnimo." }), !editingProduct && _jsxs("label", { className: "field", children: ["Cantidad inicial", _jsx("input", { name: "stock", type: "number", min: "0", step: "1", required: true, defaultValue: "0" }), _jsx("small", { children: "N\u00FAmero de productos que ingresan al inventario." })] }), _jsxs("label", { className: "field", children: ["Stock m?nimo", _jsx("input", { name: "minStock", type: "number", min: "0", step: "1", required: true, defaultValue: editingProduct?.minStock ?? 5 }), _jsx("small", { children: "Nivel de productos que activa una alerta." })] })] }), _jsxs("div", { className: "modal-actions", children: [_jsx("button", { type: "button", className: "button button-plain", onClick: () => setModal(null), children: "Cancelar" }), _jsx("button", { className: "button button-primary", disabled: saving, children: saving ? 'Guardando...' : 'Guardar' })] })] })] }) }), modal === 'movement' && _jsx(Modal, { onClose: () => setModal(null), children: _jsxs("section", { className: "modal", role: "dialog", "aria-modal": "true", "aria-labelledby": "movement-modal-title", children: [_jsxs("div", { className: "modal-header", children: [_jsxs("div", { children: [_jsx("p", { className: "eyebrow", children: "CONTROL DE EXISTENCIAS" }), _jsx("h2", { id: "movement-modal-title", children: "Registrar movimiento" })] }), _jsx("button", { className: "icon-button", "aria-label": "Cerrar", onClick: () => setModal(null), children: _jsx(Icon, { name: "close" }) })] }), _jsxs("form", { onSubmit: submitMovement, className: "form-grid", children: [_jsxs("label", { className: "field full-field", children: ["Tipo de movimiento", _jsxs("select", { value: movementType, onChange: (event) => setMovementType(event.target.value), children: [_jsx("option", { value: "entrada", children: "Entrada de mercader\u00EDa" }), _jsx("option", { value: "salida", children: "Salida de mercader\u00EDa" })] })] }), _jsxs("label", { className: "field full-field", children: ["Producto", _jsxs("select", { name: "productId", required: true, defaultValue: "", children: [_jsx("option", { value: "", disabled: true, children: "Selecciona un producto" }), activeProducts.map((product) => _jsxs("option", { value: product.id, children: [product.name, " \u00B7 ", product.stock, " productos disponibles ? ", formatUnitAmount(product.unitAmount, product.unit), " por producto"] }, product.id))] })] }), _jsxs("label", { className: "field full-field", children: ["Cantidad", _jsx("input", { name: "quantity", type: "number", min: "1", step: "1", required: true, placeholder: "Ej. 10" })] }), _jsxs("label", { className: "field full-field", children: ["Nota ", _jsx("span", { className: "optional", children: "(opcional)" }), _jsx("input", { name: "note", maxLength: 120, placeholder: "Ej. Reposici\u00F3n de proveedor" })] }), _jsxs("div", { className: "modal-actions", children: [_jsx("button", { type: "button", className: "button button-plain", onClick: () => setModal(null), children: "Cancelar" }), _jsx("button", { className: "button button-primary", disabled: saving, children: saving ? 'Guardando...' : `Confirmar ${movementType}` })] })] })] }) })] }));
 }
 
 

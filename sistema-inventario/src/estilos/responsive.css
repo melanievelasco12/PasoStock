@@ -262,5 +262,6 @@
   .product-modal .form-grid { grid-template-columns: minmax(0,1fr); gap: 14px; }
   .product-modal .stock-fields { grid-template-columns: minmax(0,1fr); gap: 12px; padding: 12px; }
   .product-modal .stock-fields > p { grid-column: auto; }
+  .product-modal .unit-quantity-fields { grid-template-columns: minmax(0,1fr); }
   .product-modal .modal-actions { position: static; margin: 0 -17px -17px; padding: 14px 17px 17px; background: var(--surface); }
 }

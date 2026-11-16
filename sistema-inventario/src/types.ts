@@ -12,6 +12,8 @@ export interface Product {
     category: string;
     price: number;
     unit: string;
+    unitAmount: number;
+    active: boolean;
     stock: number;
     minStock: number;
     movementCount: number;
@@ -26,6 +28,7 @@ export interface ProductInput {
     category: string;
     price: number;
     unit: string;
+    unitAmount: number;
     stock: number;
     minStock: number;
 }
@@ -37,6 +40,7 @@ export interface ProductUpdate {
     category: string;
     price: number;
     unit: string;
+    unitAmount: number;
     minStock: number;
 }
 

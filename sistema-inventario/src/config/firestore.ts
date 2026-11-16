@@ -116,6 +116,8 @@ export async function createProduct(input: ProductInput, uid: string): Promise<v
             category: categoryName,
             price: input.price,
             unit: input.unit,
+            unitAmount: input.unitAmount,
+            active: true,
             stock: input.stock,
             minStock: input.minStock,
             movementCount: movementRef ? 1 : 0,
@@ -158,9 +160,25 @@ export async function updateProduct(product: ProductUpdate): Promise<void> {
             category: categoryName,
             price: product.price,
             unit: product.unit,
+            unitAmount: product.unitAmount,
             minStock: product.minStock,
             updatedAt: serverTimestamp(),
         });
+    });
+}
+export async function setProductActive(productId: string, active: boolean): Promise<void> {
+    const database = requireDb();
+    const productRef = doc(database, organizationPath(`products/${productId}`));
+    await runTransaction(database, async (transaction) => {
+        const snapshot = await transaction.get(productRef);
+        if (!snapshot.exists())
+            throw new InventoryError('product-not-found');
+        const product = readProduct(snapshot.id, snapshot.data());
+        if (product.movementCount === 0)
+            throw new InventoryError('product-no-history');
+        if (product.active === active)
+            return;
+        transaction.update(productRef, { active, updatedAt: serverTimestamp() });
     });
 }
 export async function deleteProduct(product: Product): Promise<void> {
@@ -170,7 +188,7 @@ export async function deleteProduct(product: Product): Promise<void> {
         const snapshot = await transaction.get(productRef);
         if (!snapshot.exists())
             throw new InventoryError('product-not-found');
-        const current = snapshot.data();
+        const current = readProduct(snapshot.id, snapshot.data());
         if (current.movementCount !== 0 || current.stock !== 0) {
             throw new InventoryError('product-has-movements');
         }
@@ -192,6 +210,8 @@ export async function registerMovement(
         if (!snapshot.exists())
             throw new InventoryError('product-not-found');
         const product = readProduct(snapshot.id, snapshot.data());
+        if (!product.active)
+            throw new InventoryError('product-inactive');
         if (!Number.isInteger(quantity) || quantity <= 0)
             throw new InventoryError('invalid-quantity');
         if (type === 'salida' && quantity > product.stock)
@@ -222,6 +242,10 @@ export function getInventoryErrorMessage(error: unknown): string {
             return 'El producto ya no existe. Actualiza la lista e inténtalo de nuevo.';
         if (error.code === 'product-has-movements')
             return 'No se puede eliminar un producto que tiene existencias o movimientos en su historial.';
+        if (error.code === 'product-no-history')
+            return 'Solo se pueden desactivar productos que tengan historial.';
+        if (error.code === 'product-inactive')
+            return 'No se pueden registrar movimientos para un producto desactivado.';
         if (error.code === 'invalid-quantity')
             return 'La cantidad debe ser un número entero mayor que cero.';
         if (error.code === 'insufficient-stock')
@@ -245,6 +269,8 @@ function readProduct(id: string, data: DocumentData): Product {
         || typeof data.category !== 'string'
         || (data.price !== undefined && !isNonNegativePrice(data.price))
         || typeof data.unit !== 'string'
+        || (data.unitAmount !== undefined && !isPositiveUnitAmount(data.unitAmount))
+        || (data.active !== undefined && typeof data.active !== 'boolean')
         || !isNonNegativeInteger(data.stock)
         || !isNonNegativeInteger(data.minStock)
         || !isNonNegativeInteger(data.movementCount)
@@ -259,6 +285,8 @@ function readProduct(id: string, data: DocumentData): Product {
         category: data.category,
         price: data.price === undefined ? 0 : data.price,
         unit: data.unit,
+        unitAmount: data.unitAmount === undefined ? 1 : data.unitAmount,
+        active: data.active === undefined ? true : data.active,
         stock: data.stock,
         minStock: data.minStock,
         movementCount: data.movementCount,
@@ -303,6 +331,9 @@ function isNonNegativeInteger(value: unknown): value is number {
 function isNonNegativePrice(value: unknown): value is number {
     return typeof value === 'number' && Number.isFinite(value) && value >= 0 && value <= 999999999;
 }
+function isPositiveUnitAmount(value: unknown): value is number {
+    return typeof value === 'number' && Number.isFinite(value) && value > 0 && value <= 999999999;
+}
 function toIsoString(value: unknown): string {
     if (value && typeof value === 'object' && 'toDate' in value && typeof value.toDate === 'function') {
         return value.toDate().toISOString();
@@ -313,7 +344,7 @@ function toError(value: unknown): Error {
     return value instanceof Error ? value : new Error(String(value));
 }
 class InventoryError extends Error {
-    code: 'duplicate-code' | 'product-not-found' | 'product-has-movements' | 'invalid-quantity' | 'insufficient-stock';
+    code: 'duplicate-code' | 'product-not-found' | 'product-has-movements' | 'product-no-history' | 'product-inactive' | 'invalid-quantity' | 'insufficient-stock';
     constructor(code: InventoryError['code']) {
         super(code);
         this.code = code;
