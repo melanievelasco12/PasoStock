@@ -1,9 +1,5 @@
 
-.products-search { width: min(100%, 520px); margin-bottom: 18px; }
-
 .products-search input { font-size: 11px; }
-
-.products-search { width: min(100%, 440px); margin-top: -7px; }
 
 .products-table-panel table { min-width: 690px; table-layout: fixed; }
 
@@ -343,6 +339,88 @@
   color: var(--green);
   font-size: 13px;
   line-height: 1;
+}
+
+.content:has(> .page-heading + .products-search) {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.content:has(> .page-heading + .products-search) > .page-heading,
+.content:has(> .page-heading + .products-search) > .page-heading > .heading-actions {
+  display: contents;
+}
+
+.content:has(> .page-heading + .products-search) > .page-heading > div:first-child {
+  flex: 0 0 100%;
+  order: 1;
+  margin-bottom: 0;
+}
+
+.content:has(> .page-heading + .products-search) > .products-search {
+  width: min(100%, 360px);
+  max-width: 360px;
+  height: 39px;
+  flex: 0 1 360px;
+  order: 2;
+  margin: 0;
+  box-sizing: border-box;
+}
+
+.content:has(> .page-heading + .products-search) > .page-heading > .heading-actions > .button {
+  min-height: 39px;
+  height: 39px;
+  flex: 0 0 auto;
+  order: 3;
+  margin-left: auto;
+  white-space: nowrap;
+  box-sizing: border-box;
+}
+
+.content:has(> .page-heading + .products-search) > .page-heading > .heading-actions > .button:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px #78947740;
+}
+
+.content:has(> .page-heading + .products-search) > .products-table-panel,
+.content:has(> .page-heading + .products-search) > .footer,
+.content:has(> .page-heading + .products-search) > .toast {
+  flex: 1 0 100%;
+}
+
+.content:has(> .page-heading + .products-search) > .toast {
+  order: 0;
+}
+
+.content:has(> .page-heading + .products-search) > .products-table-panel {
+  order: 4;
+}
+
+.content:has(> .page-heading + .products-search) > .footer {
+  order: 5;
+}
+
+@media (max-width: 650px) {
+  .content:has(> .page-heading + .products-search) {
+    gap: 1rem;
+  }
+
+  .content:has(> .page-heading + .products-search) > .page-heading > div:first-child {
+    margin-bottom: 0;
+  }
+
+  .content:has(> .page-heading + .products-search) > .products-search {
+    width: 100%;
+    max-width: none;
+    flex-basis: 100%;
+  }
+
+  .content:has(> .page-heading + .products-search) > .page-heading > .heading-actions {
+    display: contents;
+  }
 }
 
 @media (max-width: 600px) {
