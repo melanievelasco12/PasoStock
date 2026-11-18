@@ -166,6 +166,8 @@ export default function Products({ products, hasSearch, onEdit, onDelete, onSetA
                 pageSize={pagination.pageSize}
                 onPageChange={pagination.setPage}
                 onPageSizeChange={pagination.setPageSize}
+                showAllOption
+                itemLabel="productos"
             />
         </section>
     );
