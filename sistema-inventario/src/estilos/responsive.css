@@ -264,3 +264,46 @@
   .product-modal .stock-fields > p { grid-column: auto; }
   .product-modal .modal-actions { position: static; margin: 0 -17px -17px; padding: 14px 17px 17px; background: var(--surface); }
 }
+
+@media (max-width: 767px) {
+  .sidebar {
+    inset: auto 0 0;
+    width: 100%;
+    height: calc(68px + env(safe-area-inset-bottom, 0px));
+    padding: 4px 8px calc(4px + env(safe-area-inset-bottom, 0px));
+    overflow: hidden;
+    background: #244A35;
+  }
+
+  .main-nav {
+    display: flex;
+    width: 100%;
+    min-width: 0;
+    justify-content: space-between;
+    gap: 2px;
+  }
+
+  .nav-item {
+    min-width: 44px;
+    min-height: 60px;
+    flex: 1 1 0;
+    gap: 4px;
+    padding: 5px 1px;
+    color: #FFFCF6;
+    font-size: 9px;
+    line-height: 1.15;
+    text-align: center;
+  }
+
+  .nav-item svg,
+  .nav-item.active svg {
+    width: 20px;
+    height: 20px;
+    color: #FFFCF6;
+  }
+
+  .nav-item.active { background: #ffffff20; }
+  .nav-item:hover { color: #FFFCF6; background: #ffffff20; transform: none; }
+  .nav-item.active::before { display: none; }
+  .main-area { margin-left: 0; padding-bottom: calc(68px + env(safe-area-inset-bottom, 0px)); }
+}
