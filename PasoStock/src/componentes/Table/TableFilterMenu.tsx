@@ -71,7 +71,7 @@ export function TableFilterMenu({ idPrefix, filters, onClear }: TableFilterMenuP
                 <button
                     type="button"
                     id={toggleId}
-                    className="table-filter-toggle"
+                    className={`table-filter-toggle${activeCount > 0 ? ' has-active-filters' : ''}`}
                     aria-label={activeCount ? `Filtros, ${activeCount} activos` : 'Filtros'}
                     title="Filtros"
                     aria-expanded={open}
@@ -82,6 +82,7 @@ export function TableFilterMenu({ idPrefix, filters, onClear }: TableFilterMenuP
                         <Icon name="filter" />
                         {activeCount > 0 && <span className="table-filter-badge">{activeCount}</span>}
                     </span>
+                    <span className="table-filter-label">Filtros</span>
                 </button>
                 <div
                     className="table-filter-popover"

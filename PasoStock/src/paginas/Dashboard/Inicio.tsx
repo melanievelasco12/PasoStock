@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import Table from '../../componentes/Table/Table';
+import TableSortButton, { type SortDirection } from '../../componentes/Table/TableSortButton';
 import { Icon } from '../../componentes/Icon';
 import { StatCard, StatusBadge } from '../../componentes/common';
 import { dateTime, formatUnitAmount } from '../../utils/formatters';
@@ -8,6 +9,7 @@ import estilos from './Inicio.module.css';
 
 // Cuántas filas se muestran en cada panel (los dos usan el mismo número para quedar parejos)
 const FILAS_VISIBLES = 6;
+type StockSortColumn = 'name' | 'stock' | 'minStock' | 'status';
 
 interface DashboardProps {
   products: Product[];
@@ -46,6 +48,28 @@ export default function Dashboard({ products, movements, lowStock, onProducts, o
   });
   const maxActividad = Math.max(1, ...actividad.map((day) => day.entrada + day.salida));
   const etiquetaDia = new Intl.DateTimeFormat('es-EC', { weekday: 'short' });
+  const [stockSort, setStockSort] = useState<{ column: StockSortColumn; direction: SortDirection } | null>(null);
+  const sortedLowStock = stockSort
+    ? [...lowStock].sort((a, b) => {
+      const comparison = stockSort.column === 'name'
+        ? a.name.localeCompare(b.name, 'es', { sensitivity: 'base', numeric: true })
+        : stockSort.column === 'stock'
+          ? a.stock - b.stock
+          : stockSort.column === 'minStock'
+            ? a.minStock - b.minStock
+            : (a.stock <= a.minStock ? 'Requiere atención' : 'En orden')
+              .localeCompare(b.stock <= b.minStock ? 'Requiere atención' : 'En orden', 'es');
+      return stockSort.direction === 'ascending' ? comparison : -comparison;
+    })
+    : lowStock;
+
+  function cycleStockSort(column: StockSortColumn) {
+    setStockSort((current) => {
+      if (current?.column !== column) return { column, direction: 'ascending' };
+      if (current.direction === 'ascending') return { column, direction: 'descending' };
+      return null;
+    });
+  }
 
   return (
     <>
@@ -76,20 +100,28 @@ export default function Dashboard({ products, movements, lowStock, onProducts, o
               <p>Ningún producto está en su nivel mínimo.</p>
             </div>
           ) : (
-            <Table className={estilos.scrollTabla}>
+            <Table className={`mobile-card-table ${estilos.scrollTabla}`}>
               <table className={estilos.tablaStock}>
                 <thead>
                   <tr>
-                    <th>Producto</th>
-                    <th>Existencias</th>
-                    <th>Stock mínimo</th>
-                    <th>Estado</th>
+                    <th aria-sort={stockSort?.column === 'name' ? stockSort.direction : 'none'}>
+                      <TableSortButton label="Producto" direction={stockSort?.column === 'name' ? stockSort.direction : null} onClick={() => cycleStockSort('name')} />
+                    </th>
+                    <th aria-sort={stockSort?.column === 'stock' ? stockSort.direction : 'none'}>
+                      <TableSortButton label="Existencias" direction={stockSort?.column === 'stock' ? stockSort.direction : null} onClick={() => cycleStockSort('stock')} />
+                    </th>
+                    <th aria-sort={stockSort?.column === 'minStock' ? stockSort.direction : 'none'}>
+                      <TableSortButton label="Stock mínimo" direction={stockSort?.column === 'minStock' ? stockSort.direction : null} onClick={() => cycleStockSort('minStock')} />
+                    </th>
+                    <th aria-sort={stockSort?.column === 'status' ? stockSort.direction : 'none'}>
+                      <TableSortButton label="Estado" direction={stockSort?.column === 'status' ? stockSort.direction : null} onClick={() => cycleStockSort('status')} />
+                    </th>
                   </tr>
                 </thead>
                 <tbody>
-                  {lowStock.slice(0, FILAS_VISIBLES).map((product) => (
+                  {sortedLowStock.slice(0, FILAS_VISIBLES).map((product) => (
                     <tr key={product.id} className={estilos.filaStockBajo}>
-                      <td>
+                      <td data-label="Producto">
                         <div className="product-cell">
                           <div className="product-avatar">{product.name.slice(0, 1).toUpperCase()}</div>
                           <div>
@@ -98,7 +130,7 @@ export default function Dashboard({ products, movements, lowStock, onProducts, o
                           </div>
                         </div>
                       </td>
-                      <td>
+                      <td data-label="Existencias">
                         <strong className="stock-current">{product.stock}</strong>{' '}
                         <span className="muted-unit">
                           {product.unit === 'unidad' && product.unitAmount === 1
@@ -106,10 +138,10 @@ export default function Dashboard({ products, movements, lowStock, onProducts, o
                             : `${formatUnitAmount(product.unitAmount, product.unit)} por producto`}
                         </span>
                       </td>
-                      <td>
+                      <td data-label="Stock mínimo">
                         {product.minStock} <span className="muted-unit">unidades</span>
                       </td>
-                      <td><StatusBadge low /></td>
+                      <td data-label="Estado"><StatusBadge low /></td>
                     </tr>
                   ))}
                 </tbody>

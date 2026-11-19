@@ -1,5 +1,10 @@
 .table-scroll { width: 100%; overflow-x: auto; }
 
+.table-sort-button { display: inline-flex; align-items: center; gap: 6px; padding: 0; color: inherit; background: transparent; border: 0; cursor: pointer; font: inherit; font-weight: 500; white-space: nowrap; }
+.table-sort-button span { color: var(--green); font-size: 13px; line-height: 1; }
+.table-sort-button:focus-visible { outline: 2px solid #789477; outline-offset: 2px; }
+.table-sort-button-icon-only { justify-content: center; }
+
 .table-column-filter { display: block; width: 100%; min-width: 76px; margin-top: 7px; padding: 6px 7px; color: #463d32; background: #fffcf6; border: 1px solid #e1d7c8; border-radius: 5px; font: inherit; font-size: 10px; }
 .table-column-filter:focus-visible { border-color: #789477; outline: 0; box-shadow: 0 0 0 3px #78947720; }
 
@@ -24,4 +29,201 @@
   .table-pagination { flex-wrap: wrap; gap: 10px; padding: 12px; }
   .pagination-range { margin-left: 0; }
   .pagination-controls { margin-left: auto; }
+}
+
+@media (max-width: 650px) {
+  .table-scroll.mobile-card-table {
+    min-width: 0;
+    overflow: visible;
+  }
+
+  .table-scroll.mobile-card-table > table {
+    display: block;
+    width: 100%;
+    min-width: 0;
+    table-layout: auto;
+    white-space: normal;
+  }
+
+  .table-scroll.mobile-card-table thead {
+    display: block;
+    padding: 11px 12px;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .table-scroll.mobile-card-table thead::before {
+    display: block;
+    margin-bottom: 8px;
+    color: var(--muted);
+    content: 'Ordenar por';
+    font-size: 9px;
+    font-weight: 600;
+  }
+
+  .table-scroll.mobile-card-table thead tr {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 7px;
+  }
+
+  .table-scroll.mobile-card-table thead th {
+    position: static;
+    display: inline-flex;
+    width: auto;
+    min-width: 0;
+    padding: 0;
+    background: transparent;
+    border: 0;
+  }
+
+  .table-scroll.mobile-card-table .table-sort-button {
+    gap: 5px;
+    padding: 6px 9px;
+    color: var(--ink);
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    font-size: 9px;
+  }
+
+  .table-scroll.mobile-card-table .table-sort-button span {
+    font-size: 12px;
+  }
+
+  .table-scroll.mobile-card-table tbody {
+    display: grid;
+    width: 100%;
+    min-width: 0;
+    gap: 9px;
+    padding: 10px 12px 12px;
+  }
+
+  .table-scroll.mobile-card-table tbody tr {
+    display: grid;
+    width: 100%;
+    min-width: 0;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0 12px;
+    padding: 7px 12px;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+  }
+
+  .table-scroll.mobile-card-table tbody td {
+    display: flex;
+    width: auto;
+    min-width: 0;
+    align-items: flex-start;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 8px 0;
+    color: var(--ink);
+    border: 0;
+    overflow-wrap: anywhere;
+    text-align: right;
+    white-space: normal;
+  }
+
+  .table-scroll.mobile-card-table tbody td::before {
+    flex: 0 0 auto;
+    color: var(--muted);
+    content: attr(data-label);
+    font-size: 9px;
+    font-weight: 600;
+    text-align: left;
+  }
+
+  .table-scroll.mobile-card-table tbody td:not([data-label])::before {
+    display: none;
+  }
+
+  .table-scroll.mobile-card-table tbody td[colspan] {
+    grid-column: 1 / -1;
+  }
+
+  .table-scroll.mobile-card-table .products-category-heading {
+    justify-content: flex-start;
+    gap: 5px;
+  }
+
+  .table-scroll.mobile-card-table .products-category-filter > summary {
+    padding: 6px 9px;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    font-size: 9px;
+  }
+
+  .table-scroll.mobile-card-table .products-category-heading > .table-sort-button {
+    width: 29px;
+    height: 29px;
+    justify-content: center;
+    padding: 0;
+    border-radius: 50%;
+  }
+
+  .products-card-table tbody td[data-label="Producto"] {
+    grid-column: 1 / -1;
+    order: -1;
+  }
+
+  .products-card-table tbody td[data-label="Acciones"] {
+    grid-column: 1 / -1;
+    align-items: center;
+    border-top: 1px solid var(--line);
+  }
+
+  .products-card-table .catalog-product {
+    flex: 1;
+    overflow-wrap: anywhere;
+    text-align: right;
+  }
+
+  .products-card-table .catalog-product strong {
+    overflow-wrap: anywhere;
+  }
+
+  .products-card-table .catalog-stock-unit {
+    text-align: right;
+  }
+
+  .products-card-table .row-actions {
+    flex-wrap: wrap;
+  }
+
+  .movements-card-table tbody td[data-label="Producto"],
+  .movements-card-table tbody td[data-label="Fecha"] {
+    grid-column: 1 / -1;
+  }
+
+  .movements-card-table tbody td[data-label="Producto"] {
+    order: -1;
+  }
+
+  .movements-card-table .product-cell {
+    min-width: 0;
+    flex: 1;
+    justify-content: flex-end;
+  }
+
+  .movements-card-table .product-cell > div:last-child {
+    overflow-wrap: anywhere;
+  }
+
+  .reports-card-table tbody td[data-label="Producto"],
+  .reports-card-table tbody td[data-label="Estado"] {
+    grid-column: 1 / -1;
+  }
+
+  .reports-card-table tbody td[data-label="Producto"] {
+    order: -1;
+  }
+
+  .reports-card-table tbody td[data-label="Producto"] strong,
+  .reports-card-table .report-stock-unit {
+    overflow-wrap: anywhere;
+    text-align: right;
+  }
 }

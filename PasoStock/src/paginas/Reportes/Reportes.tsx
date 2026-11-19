@@ -2,6 +2,7 @@ import { useState } from 'react';
 import Table from '../../componentes/Table/Table';
 import Pagination from '../../componentes/Table/Pagination';
 import { TableFilterMenu } from '../../componentes/Table/TableFilterMenu';
+import TableSortButton, { type SortDirection } from '../../componentes/Table/TableSortButton';
 import { usePagination } from '../../componentes/Table/usePagination';
 import { Icon } from '../../componentes/Icon';
 import { formatUnitAmount } from '../../utils/formatters';
@@ -155,6 +156,8 @@ interface ReportsProps {
     onExportPdf: () => void | Promise<void>;
 }
 
+type ReportSortColumn = 'code' | 'name' | 'category' | 'stock' | 'minStock' | 'status';
+
 export default function Reports({ products, movements, lowStock, onExportCsv, onExportPdf }: ReportsProps) {
     const [filters, setFilters] = useState({
         category: '',
@@ -165,6 +168,7 @@ export default function Reports({ products, movements, lowStock, onExportCsv, on
         dateTo: '',
     });
     const [downloadOpen, setDownloadOpen] = useState(false);
+    const [sort, setSort] = useState<{ column: ReportSortColumn; direction: SortDirection } | null>(null);
     const entries = movements.filter((movement) => movement.type === 'entrada').reduce((sum, item) => sum + item.quantity, 0);
     const exits = movements.filter((movement) => movement.type === 'salida').reduce((sum, item) => sum + item.quantity, 0);
     const categories = [...new Set(products.map((product) => product.category).filter(Boolean))]
@@ -191,7 +195,19 @@ export default function Reports({ products, movements, lowStock, onExportCsv, on
             && (!(filters.type || filters.dateFrom || filters.dateTo)
                 || movements.some((movement) => matchesMovementFilter(movement, product.id, filters.type, filters.dateFrom, filters.dateTo)));
     });
-    const pagination = usePagination(filteredProducts);
+    const sortedProducts = sort
+        ? [...filteredProducts].sort((a, b) => {
+            const comparison = sort.column === 'code' || sort.column === 'name' || sort.column === 'category'
+                ? a[sort.column].localeCompare(b[sort.column], 'es', { sensitivity: 'base', numeric: true })
+                : sort.column === 'stock'
+                    ? a.stock - b.stock
+                    : sort.column === 'minStock'
+                        ? a.minStock - b.minStock
+                        : (a.active ? 'Activo' : 'Inactivo').localeCompare(b.active ? 'Activo' : 'Inactivo', 'es');
+            return sort.direction === 'ascending' ? comparison : -comparison;
+        })
+        : filteredProducts;
+    const pagination = usePagination(sortedProducts);
     const filterDefinitions = [
         {
             title: 'Stock',
@@ -266,6 +282,13 @@ export default function Reports({ products, movements, lowStock, onExportCsv, on
             ),
         },
     ];
+    function cycleSort(column: ReportSortColumn) {
+        setSort((current) => {
+            if (current?.column !== column) return { column, direction: 'ascending' };
+            if (current.direction === 'ascending') return { column, direction: 'descending' };
+            return null;
+        });
+    }
 
     return (
         <div className="reports-content">
@@ -332,28 +355,47 @@ export default function Reports({ products, movements, lowStock, onExportCsv, on
                 <div className="table-meta">
                     <span>{filteredProducts.length} de {products.length} productos</span>
                 </div>
-                <Table>
+                <Table className="mobile-card-table reports-card-table">
                     <table>
                         <thead>
                             <tr>
-                                <th>Código</th>
-                                <th>Producto</th>
-                                <th>Categoría</th>
-                                <th>Existencias</th>
-                                <th>Mínimo</th>
-                                <th>Estado</th>
+                                    <th aria-sort={sort?.column === 'code' ? sort.direction : 'none'}>
+                                        <TableSortButton label="Código" direction={sort?.column === 'code' ? sort.direction : null} onClick={() => cycleSort('code')} />
+                                    </th>
+                                    <th aria-sort={sort?.column === 'name' ? sort.direction : 'none'}>
+                                        <TableSortButton label="Producto" direction={sort?.column === 'name' ? sort.direction : null} onClick={() => cycleSort('name')} />
+                                    </th>
+                                    <th aria-sort={sort?.column === 'category' ? sort.direction : 'none'}>
+                                        <TableSortButton label="Categoría" direction={sort?.column === 'category' ? sort.direction : null} onClick={() => cycleSort('category')} />
+                                    </th>
+                                    <th aria-sort={sort?.column === 'stock' ? sort.direction : 'none'}>
+                                        <TableSortButton label="Existencias" direction={sort?.column === 'stock' ? sort.direction : null} onClick={() => cycleSort('stock')} />
+                                    </th>
+                                    <th aria-sort={sort?.column === 'minStock' ? sort.direction : 'none'}>
+                                        <TableSortButton label="Mínimo" direction={sort?.column === 'minStock' ? sort.direction : null} onClick={() => cycleSort('minStock')} />
+                                    </th>
+                                    <th aria-sort={sort?.column === 'status' ? sort.direction : 'none'}>
+                                        <TableSortButton label="Estado" direction={sort?.column === 'status' ? sort.direction : null} onClick={() => cycleSort('status')} />
+                                    </th>
                             </tr>
                         </thead>
                         <tbody>
                             {pagination.items.length
                                 ? pagination.items.map((product) => (
-                                    <tr key={product.id}>
-                                        <td className="code-cell">{product.code}</td>
-                                        <td><strong>{product.name}</strong></td>
-                                        <td>{product.category}</td>
-                                        <td><strong>{product.stock} × {formatUnitAmount(product.unitAmount, product.unit)}</strong></td>
-                                        <td>{product.minStock} unidades</td>
-                                        <td><StatusBadge low={product.stock <= product.minStock} /></td>
+                                    <tr key={product.id} className={product.stock <= product.minStock ? 'low-stock-row' : undefined}>
+                                        <td className="code-cell" data-label="Código">{product.code}</td>
+                                        <td data-label="Producto"><strong>{product.name}</strong></td>
+                                        <td data-label="Categoría">{product.category}</td>
+                                        <td className="report-stock-cell" data-label="Existencias">
+                                            <strong className={`catalog-stock${product.stock <= product.minStock ? ' low' : ''}`}>{product.stock}</strong>
+                                            <span className="muted-unit report-stock-unit">
+                                                {product.unit === 'unidad' && product.unitAmount === 1
+                                                    ? 'unidades'
+                                                    : `${formatUnitAmount(product.unitAmount, product.unit)} por producto`}
+                                            </span>
+                                        </td>
+                                        <td data-label="Mínimo">{product.minStock} unidades</td>
+                                        <td data-label="Estado"><StatusBadge low={product.stock <= product.minStock} /></td>
                                     </tr>
                                 ))
                                 : (

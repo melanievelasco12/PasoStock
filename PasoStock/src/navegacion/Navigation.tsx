@@ -3,12 +3,12 @@ import Button from '../componentes/Button/Button';
 import type { IconName } from '../componentes/Icon';
 import type { PageView, Product } from '../types';
 
-const navigationItems: readonly (readonly [PageView, string, IconName])[] = [
-  ['dashboard', 'Dashboard', 'home'],
-  ['products', 'Productos', 'box'],
-  ['movements', 'Movimientos', 'arrows'],
-  ['reports', 'Reportes', 'chart'],
-  ['settings', 'Configuraci\u00f3n', 'settings'],
+const navigationItems: readonly (readonly [PageView, string, string, IconName])[] = [
+  ['dashboard', 'Dashboard', 'Inicio', 'home'],
+  ['products', 'Productos', 'Productos', 'box'],
+  ['movements', 'Movimientos', 'Movimientos', 'arrows'],
+  ['reports', 'Reportes', 'Reportes', 'chart'],
+  ['settings', 'Configuraci\u00f3n', 'Ajustes', 'settings'],
 ]
 
 interface NavigationProps {
@@ -20,7 +20,7 @@ interface NavigationProps {
 export default function Navigation({ view, lowStock, onNavigate }: NavigationProps) {
   return (
     <nav className="main-nav" aria-label={'Navegaci\u00f3n principal'}>
-      {navigationItems.map(([key, label, icon]) => (
+      {navigationItems.map(([key, label, mobileLabel, icon]) => (
         <Button
           key={key}
           className={'nav-item ' + (view === key ? 'active' : '')}
@@ -30,7 +30,8 @@ export default function Navigation({ view, lowStock, onNavigate }: NavigationPro
           onClick={() => onNavigate(key)}
         >
           <Icon name={icon} />
-          <span>{label}</span>
+          <span className="nav-label-desktop">{label}</span>
+          <span className="nav-label-mobile">{mobileLabel}</span>
           {key === 'products' && lowStock.length > 0 && <span className="nav-count">{lowStock.length}</span>}
         </Button>
       ))}

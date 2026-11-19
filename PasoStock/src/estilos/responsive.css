@@ -298,3 +298,147 @@
   .nav-item { gap: 2px; padding-right: 1px; padding-left: 1px; font-size: 8px; line-height: 1.15; }
   .mobile-signout-button { width: 44px; flex-basis: 44px; font-size: 8px; }
 }
+
+@media (max-width: 850px) {
+  .sidebar {
+    z-index: 7;
+    height: calc(68px + env(safe-area-inset-bottom, 0px));
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    padding: 5px 6px calc(5px + env(safe-area-inset-bottom, 0px));
+  }
+
+  .main-area {
+    padding-bottom: calc(68px + env(safe-area-inset-bottom, 0px));
+  }
+
+  .main-nav {
+    display: flex;
+    width: auto;
+    min-width: 0;
+    flex: 1 1 auto;
+    gap: 1px;
+  }
+
+  .nav-item,
+  .mobile-signout-button {
+    min-width: 0;
+    min-height: 55px;
+    flex: 1 1 0;
+    gap: 3px;
+    padding: 4px 1px;
+    font-size: 11px;
+    line-height: 1.15;
+    overflow-wrap: normal;
+    text-align: center;
+    white-space: nowrap;
+  }
+
+  .app-shell .sidebar .nav-item {
+    font-size: 11px;
+  }
+
+  .nav-item svg,
+  .mobile-signout-button svg {
+    width: 19px;
+    height: 19px;
+  }
+
+  .nav-item > span.nav-label-desktop:first-of-type { display: none; }
+  .nav-item > span.nav-label-mobile { display: block; }
+
+  .nav-item.active::before {
+    top: 0;
+    right: 12px;
+    bottom: auto;
+    left: 12px;
+    width: auto;
+    height: 2px;
+    border-radius: 0 0 2px 2px;
+  }
+
+  .sidebar .mobile-signout-button {
+    position: fixed;
+    top: 9px;
+    right: 8px;
+    z-index: 10;
+    display: flex;
+    width: 56px;
+    min-width: 56px;
+    height: 36px;
+    min-height: 36px;
+    flex: none;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    padding: 0 7px;
+    color: #e0d8cb;
+    background: var(--green);
+    border: 1px solid #ffffff2b;
+    border-radius: 7px;
+    box-shadow: 0 2px 6px #30271f20;
+    font-size: 11px;
+  }
+
+  .topbar {
+    padding-right: 74px;
+  }
+
+  .top-actions {
+    margin-left: auto;
+  }
+
+  .mobile-signout-button svg {
+    width: 16px;
+    height: 16px;
+  }
+}
+
+@media (max-width: 650px) {
+  .sidebar {
+    height: calc(68px + env(safe-area-inset-bottom, 0px));
+    flex-direction: row;
+    align-items: center;
+    padding: 4px 5px calc(4px + env(safe-area-inset-bottom, 0px));
+  }
+
+  .main-area {
+    padding-bottom: calc(68px + env(safe-area-inset-bottom, 0px));
+  }
+
+  .main-nav {
+    display: flex;
+    width: auto;
+    min-width: 0;
+    gap: 1px;
+  }
+
+  .nav-item {
+    min-height: 55px;
+    padding: 3px 1px;
+    gap: 2px;
+  }
+
+  .nav-item svg,
+  .mobile-signout-button svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  .topbar {
+    padding-right: 74px;
+  }
+
+  .top-user-name {
+    display: none;
+  }
+}
+
+@media (max-width: 360px) {
+  .app-shell .sidebar .nav-item,
+  .mobile-signout-button {
+    font-size: 10px;
+  }
+}

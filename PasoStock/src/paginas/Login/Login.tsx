@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { Icon, GoogleMark } from '../../componentes/Icon';
 import type { FormEvent, FormEventHandler } from 'react';
 
@@ -20,6 +20,7 @@ export function LoginScreen({ configured, error, notice, busy, initialEmail, onC
     const [rememberSession, setRememberSession] = useState(true);
     const [showPassword, setShowPassword] = useState(false);
     const [registering, setRegistering] = useState(false);
+    const emailInput = useRef<HTMLInputElement>(null);
     return (
         <main className="auth-screen login-screen">
             <div className="login-orbit login-orbit-left" aria-hidden="true" />
@@ -60,7 +61,7 @@ export function LoginScreen({ configured, error, notice, busy, initialEmail, onC
                         <span>Correo electrónico</span>
                         <span className="login-input-wrap">
                             <Icon name="mail" />
-                            <input name="email" type="email" autoComplete="username" required value={email} onChange={(event) => setEmail(event.target.value)} placeholder="nombre@correo.com" />
+                            <input ref={emailInput} name="email" type="email" autoComplete="username" required value={email} onChange={(event) => setEmail(event.target.value)} placeholder="nombre@correo.com" />
                         </span>
                     </label>
                     <label className="field login-field">
@@ -88,7 +89,10 @@ export function LoginScreen({ configured, error, notice, busy, initialEmail, onC
                             <span>Recordarme</span>
                         </label>
                         {!registering && (
-                            <button type="button" className="forgot-password" disabled={!configured || busy || !email.trim()} onClick={() => onPasswordReset(email.trim())}>
+                            <button type="button" className="forgot-password" disabled={!configured || busy} onClick={() => {
+                                emailInput.current?.focus();
+                                void onPasswordReset(email.trim());
+                            }}>
                                 ¿Olvidaste tu contraseña?
                             </button>
                         )}

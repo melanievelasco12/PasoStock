@@ -45,64 +45,7 @@
 
 .movement-history-panel.panel.table-panel { position: relative; overflow: visible; }
 
-.movement-date-filters { position: relative; z-index: 2; display: flex; align-items: end; flex-wrap: wrap; gap: 10px; padding: 14px 17px; border-bottom: 1px solid #ece3d6; }
-
-.movement-filter-accordion { position: static; display: grid; flex: 0 0 40px; margin-left: auto; background: #fffcf6; border: 1px solid #e1d7c8; border-radius: 6px; }
-
-.movement-more-filters { display: flex; width: 100%; height: 34px; align-items: center; justify-content: center; padding: 0; color: #463d32; background: transparent; border: 0; cursor: pointer; font: inherit; font-size: 10px; }
-
-.movement-more-filters:hover,.movement-more-filters:focus-visible { background: #f1eee5; outline: 0; }
-
-.movement-filter-title { position: relative; display: inline-flex; align-items: center; justify-content: center; }
-
-.movement-filter-title svg { width: 18px; height: 18px; }
-
-.movement-filter-badge { position: absolute; top: -7px; right: -9px; display: grid; min-width: 15px; height: 15px; place-items: center; padding: 0 3px; color: #fff; background: var(--green); border: 1px solid #fffcf6; border-radius: 9px; font-size: 8px; font-weight: 600; }
-
-.movement-extra-filters { position: absolute; z-index: 20; top: calc(100% - 1px); right: 17px; display: grid; width: min(220px, calc(100vw - 40px)); max-height: min(65vh, 420px); grid-template-columns: minmax(0, 1fr); gap: 9px; padding: 12px; overflow-y: auto; background: #fffcf6; border: 1px solid #e1d7c8; border-radius: 7px; box-shadow: 0 8px 20px #463d321f; }
-
-.movement-extra-filters[hidden] { display: none; }
-
-.movement-filter-option { border-bottom: 1px solid #e1d7c8; }
-
-.movement-filter-option:last-child { border-bottom: 0; }
-
-.movement-filter-option > summary { display: grid; grid-template-columns: auto minmax(0, 1fr) 8px; align-items: center; gap: 8px; padding: 8px 2px; color: #463d32; cursor: pointer; font-size: 10px; font-weight: 600; list-style: none; }
-
-.movement-filter-option > summary::-webkit-details-marker { display: none; }
-
-.movement-filter-option-value { overflow: hidden; color: #756b5e; font-weight: 400; text-align: right; text-overflow: ellipsis; white-space: nowrap; }
-
-.movement-filter-option-chevron { width: 7px; height: 7px; border-right: 1px solid currentColor; border-bottom: 1px solid currentColor; transform: rotate(45deg); transition: transform .18s ease; }
-
-.movement-filter-option[open] .movement-filter-option-chevron { transform: rotate(225deg); }
-
-.movement-filter-option-list { display: grid; max-height: 150px; gap: 3px; padding: 0 0 7px; overflow-y: auto; }
-
-.movement-filter-option-list button { padding: 6px 8px; color: #463d32; background: transparent; border: 0; border-radius: 4px; cursor: pointer; font: inherit; font-size: 10px; text-align: left; }
-
-.movement-filter-option-list button:hover,
-.movement-filter-option-list button[aria-pressed="true"] { color: var(--green); background: #e9efe5; }
-
-.movement-date-range-calendar { padding: 3px 1px 5px; }
-
-.movement-date-range-inputs { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 7px; }
-
-.movement-date-range-inputs label { display: grid; min-width: 0; gap: 3px; color: #756b5e; font-size: 8px; }
-
-.movement-date-range-inputs input { width: 100%; min-width: 0; height: 28px; padding: 0 4px; color: #463d32; background: #fff; border: 1px solid #e1d7c8; border-radius: 4px; font: inherit; font-size: 8px; }
-
-.movement-filter-clear { margin: 0 0 9px; padding: 4px 0; color: var(--green); background: transparent; border: 0; font-size: 10px; font-weight: 600; }
-
-.movement-filter-clear:hover { text-decoration: underline; }
-
 .heading-actions:not(.dashboard-heading-actions) > .search-box { display: none; }
-
-@media (max-width: 700px) {
-    .movement-extra-filters { width: min(220px, calc(100vw - 32px)); }
-    .movement-filter-clear { margin: 0; }
-}
-
 
 .stat-card,.panel,.shortcut-card {
   border-color: #d8cbb6;
@@ -153,8 +96,7 @@
   box-shadow: 0 8px 18px #463d3212;
 }
 
-.movement-shortcuts .shortcut-card:focus-visible,
-.movement-filter-clear:focus-visible {
+.movement-shortcuts .shortcut-card:focus-visible {
   outline: 2px solid #789477;
   outline-offset: 3px;
 }
@@ -167,10 +109,6 @@
 .movement-shortcuts .exit-shortcut {
   color: #754719;
   background: #f5e5ce;
-}
-
-.movement-date-filters {
-  background: linear-gradient(90deg, #fffcf6, #f8f4ec);
 }
 
 .movement-history-panel tbody tr {

@@ -150,3 +150,22 @@
 .report-table tbody tr:hover {
     background: #f7f3e9;
 }
+
+.report-stock-cell {
+    white-space: normal;
+}
+
+.report-stock-unit {
+    display: block;
+    margin-top: 5px;
+    overflow-wrap: anywhere;
+    line-height: 1.35;
+}
+
+.report-table tbody tr.low-stock-row {
+    background: #fff0ee;
+}
+
+.report-table tbody tr.low-stock-row:hover {
+    background: #ffe6e2;
+}

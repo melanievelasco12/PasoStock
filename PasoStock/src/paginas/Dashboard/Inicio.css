@@ -1,1 +1,65 @@
 .dashboard-heading-actions { flex-wrap: wrap; justify-content: flex-end; }
+
+.dashboard-movement-menu {
+  position: relative;
+}
+
+.dashboard-movement-menu > summary {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  list-style: none;
+}
+
+.dashboard-movement-menu > summary::-webkit-details-marker {
+  display: none;
+}
+
+.dashboard-movement-chevron {
+  width: 7px;
+  height: 7px;
+  margin: -4px 2px 0 1px;
+  border-right: 1.5px solid currentColor;
+  border-bottom: 1.5px solid currentColor;
+  transform: rotate(45deg);
+}
+
+.dashboard-movement-options {
+  position: absolute;
+  z-index: 10;
+  top: calc(100% + 6px);
+  right: 0;
+  display: grid;
+  min-width: 100%;
+  gap: 3px;
+  padding: 6px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  box-shadow: 0 8px 20px #463d321f;
+}
+
+.dashboard-movement-options button {
+  min-height: 36px;
+  padding: 0 10px;
+  color: var(--ink);
+  background: transparent;
+  border: 0;
+  border-radius: 5px;
+  cursor: pointer;
+  font: inherit;
+  text-align: left;
+  white-space: nowrap;
+}
+
+.dashboard-movement-options button:hover,
+.dashboard-movement-options button:focus-visible {
+  color: var(--green);
+  background: #e9efe5;
+}
+
+.dashboard-movement-options button:focus-visible {
+  outline: 2px solid #789477;
+  outline-offset: 1px;
+}

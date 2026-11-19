@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import Table from '../../componentes/Table/Table';
 import Pagination from '../../componentes/Table/Pagination';
+import TableSortButton, { type SortDirection } from '../../componentes/Table/TableSortButton';
 import { usePagination } from '../../componentes/Table/usePagination';
 import { Icon } from '../../componentes/Icon';
 import { formatUnitAmount, productPrice } from '../../utils/formatters';
@@ -15,8 +16,7 @@ interface ProductsProps {
     onSetActive: (product: Product, active: boolean) => void;
 }
 
-type SortColumn = 'name' | 'price' | 'stock';
-type SortDirection = 'ascending' | 'descending';
+type SortColumn = 'category' | 'name' | 'price' | 'stock';
 
 export default function Products({ products, hasSearch, onClearSearch, onEdit, onDelete, onSetActive }: ProductsProps) {
     const [status, setStatus] = useState<'active' | 'inactive' | ''>('active');
@@ -33,7 +33,9 @@ export default function Products({ products, hasSearch, onClearSearch, onEdit, o
         ? [...filteredProducts].sort((a, b) => {
             const comparison = sort.column === 'name'
                 ? a.name.localeCompare(b.name, 'es', { sensitivity: 'base', numeric: true })
-                : a[sort.column] - b[sort.column];
+                : sort.column === 'category'
+                    ? a.category.localeCompare(b.category, 'es', { sensitivity: 'base', numeric: true })
+                    : a[sort.column] - b[sort.column];
             return sort.direction === 'ascending' ? comparison : -comparison;
         })
         : filteredProducts;
@@ -57,11 +59,6 @@ export default function Products({ products, hasSearch, onClearSearch, onEdit, o
             }
             return null;
         });
-    }
-
-    function sortIcon(column: SortColumn) {
-        if (sort?.column !== column) return '⇅';
-        return sort.direction === 'ascending' ? '↑' : '↓';
     }
 
     function clearFilters() {
@@ -93,50 +90,52 @@ export default function Products({ products, hasSearch, onClearSearch, onEdit, o
                 <span>{filteredProducts.length} de {visibleProducts.length} {status === 'active' ? 'productos activos' : status === 'inactive' ? 'productos inactivos' : 'productos'}</span>
                 <span>Las existencias se actualizan con cada movimiento</span>
             </div>
-            <Table>
+            <Table className="mobile-card-table products-card-table">
                 <table>
                     <thead>
                         <tr>
-                            <th aria-label="Filtrar por categoría">
-                                <details className="products-category-filter">
-                                    <summary aria-label={`Categoría${selectedCategories.length ? ` (${selectedCategories.length})` : ''}`}>
-                                        <span>Categoría{selectedCategories.length ? ` (${selectedCategories.length})` : ''}</span>
-                                        <Icon name="filter" />
-                                        <span className="products-category-chevron" aria-hidden="true">⌄</span>
-                                    </summary>
-                                    <div className="products-category-menu" role="group" aria-label="Categorías">
-                                        {categories.length
-                                            ? categories.map((category) => (
-                                                <label key={category}>
-                                                    <input
-                                                        type="checkbox"
-                                                        checked={selectedCategories.includes(category)}
-                                                        onChange={() => toggleCategory(category)}
-                                                    />
-                                                    <span>{category}</span>
-                                                </label>
-                                            ))
-                                            : <span className="products-category-empty">No hay categorías</span>}
-                                        <button type="button" onClick={() => setSelectedCategories([])} disabled={!selectedCategories.length}>
-                                            Limpiar selección
-                                        </button>
-                                    </div>
-                                </details>
+                            <th aria-label="Filtrar y ordenar por categoría" aria-sort={sort?.column === 'category' ? sort.direction : 'none'}>
+                                <div className="products-category-heading">
+                                    <details className="products-category-filter">
+                                        <summary aria-label={`Categoría${selectedCategories.length ? ` (${selectedCategories.length})` : ''}`}>
+                                            <span>Categoría{selectedCategories.length ? ` (${selectedCategories.length})` : ''}</span>
+                                            <Icon name="filter" />
+                                            <span className="products-category-chevron" aria-hidden="true">⌄</span>
+                                        </summary>
+                                        <div className="products-category-menu" role="group" aria-label="Categorías">
+                                            {categories.length
+                                                ? categories.map((category) => (
+                                                    <label key={category}>
+                                                        <input
+                                                            type="checkbox"
+                                                            checked={selectedCategories.includes(category)}
+                                                            onChange={() => toggleCategory(category)}
+                                                        />
+                                                        <span>{category}</span>
+                                                    </label>
+                                                ))
+                                                : <span className="products-category-empty">No hay categorías</span>}
+                                            <button type="button" onClick={() => setSelectedCategories([])} disabled={!selectedCategories.length}>
+                                                Limpiar selección
+                                            </button>
+                                        </div>
+                                    </details>
+                                    <TableSortButton
+                                        label="Categoría"
+                                        direction={sort?.column === 'category' ? sort.direction : null}
+                                        onClick={() => cycleSort('category')}
+                                        iconOnly
+                                    />
+                                </div>
                             </th>
                             <th aria-sort={sort?.column === 'name' ? sort.direction : 'none'}>
-                                <button type="button" className="products-sort-button" onClick={() => cycleSort('name')}>
-                                    Nombre <span aria-hidden="true">{sortIcon('name')}</span>
-                                </button>
+                                <TableSortButton label="Producto" direction={sort?.column === 'name' ? sort.direction : null} onClick={() => cycleSort('name')} />
                             </th>
                             <th aria-sort={sort?.column === 'price' ? sort.direction : 'none'}>
-                                <button type="button" className="products-sort-button" onClick={() => cycleSort('price')}>
-                                    Precio ($) <span aria-hidden="true">{sortIcon('price')}</span>
-                                </button>
+                                <TableSortButton label="Precio ($)" direction={sort?.column === 'price' ? sort.direction : null} onClick={() => cycleSort('price')} />
                             </th>
                             <th aria-sort={sort?.column === 'stock' ? sort.direction : 'none'}>
-                                <button type="button" className="products-sort-button" onClick={() => cycleSort('stock')}>
-                                    Stock Actual <span aria-hidden="true">{sortIcon('stock')}</span>
-                                </button>
+                                <TableSortButton label="Stock Actual" direction={sort?.column === 'stock' ? sort.direction : null} onClick={() => cycleSort('stock')} />
                             </th>
                             <th className="actions-col">Acciones</th>
                         </tr>
@@ -148,24 +147,24 @@ export default function Products({ products, hasSearch, onClearSearch, onEdit, o
                                     key={product.id}
                                     className={product.active && product.stock <= product.minStock ? 'low-stock-row' : undefined}
                                 >
-                                    <td><span className="category-pill">{product.category}</span></td>
-                                    <td>
+                                    <td data-label="Categoría"><span className="category-pill">{product.category}</span></td>
+                                    <td data-label="Producto">
                                         <div className="catalog-product">
                                             <strong>{product.name}</strong>
                                             {product.brand && <span className="catalog-brand">{product.brand}</span>}
                                             {product.code && <span>{product.code}</span>}
                                         </div>
                                     </td>
-                                    <td><strong className="product-price">{productPrice.format(product.price)}</strong></td>
-                                    <td>
+                                    <td data-label="Precio"><strong className="product-price">{productPrice.format(product.price)}</strong></td>
+                                    <td className="catalog-stock-cell" data-label="Stock actual">
                                         <strong className={`catalog-stock${product.stock <= product.minStock ? ' low' : ''}`}>{product.stock}</strong>{' '}
-                                        <span className="muted-unit">
+                                        <span className="muted-unit catalog-stock-unit">
                                             {product.unit === 'unidad' && product.unitAmount === 1
                                                 ? 'unidades'
                                                 : `${formatUnitAmount(product.unitAmount, product.unit)} por producto`}
                                         </span>
                                     </td>
-                                    <td>
+                                    <td data-label="Acciones">
                                         <div className="row-actions">
                                             <button aria-label={`Editar ${product.name}`} title="Editar" onClick={() => onEdit(product)}>
                                                 <Icon name="edit" />

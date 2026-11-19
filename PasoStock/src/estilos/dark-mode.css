@@ -174,3 +174,18 @@
 .dark-theme .negative-quantity { color: #efc395 !important; }
 .dark-theme .catalog-empty strong,
 .dark-theme .catalog-empty p { color: #d8ded8; }
+.dark-theme .table-scroll.mobile-card-table thead { border-color: #3b463e; }
+.dark-theme .table-scroll.mobile-card-table .table-sort-button,
+.dark-theme .table-scroll.mobile-card-table .products-category-filter > summary {
+    color: #e7e4dc;
+    background: #303a33;
+    border-color: #48594b;
+}
+.dark-theme .table-scroll.mobile-card-table tbody tr {
+    background: #222925;
+    border-color: #3b463e;
+}
+.dark-theme .table-scroll.mobile-card-table tbody td::before { color: #b7c1b8; }
+.dark-theme .products-card-table tbody td[data-label="Acciones"] { border-color: #3b463e; }
+.dark-theme .report-table tbody tr.low-stock-row { background: #3b2928; }
+.dark-theme .report-table tbody tr.low-stock-row:hover { background: #4a302e; }

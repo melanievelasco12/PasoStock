@@ -1,7 +1,8 @@
 import { useState } from 'react';
-import { Icon } from '../../componentes/Icon';
 import Table from '../../componentes/Table/Table';
 import Pagination from '../../componentes/Table/Pagination';
+import { TableFilterMenu } from '../../componentes/Table/TableFilterMenu';
+import TableSortButton, { type SortDirection } from '../../componentes/Table/TableSortButton';
 import { usePagination } from '../../componentes/Table/usePagination';
 import { EmptyState } from '../../componentes/common';
 import type { Movement, MovementType, Product } from '../../types';
@@ -40,84 +41,78 @@ interface MovementsProps {
 
 interface MovementColumnFilters {
     category: string;
-    product: string;
     type: string;
     dateFrom: string;
     dateTo: string;
 }
 
-interface FilterChoice {
-    value: string;
-    label: string;
-}
-
-interface MovementFilterOptionProps {
-    title: string;
-    value: string;
-    options: FilterChoice[];
-    onSelect: (value: string) => void;
-}
-
-function MovementFilterOption({ title, value, options, onSelect }: MovementFilterOptionProps) {
-    const selectedLabel = options.find((option) => option.value === value)?.label ?? 'Todos';
-
-    return (
-        <details className="movement-filter-option">
-            <summary>
-                <span>{title}</span>
-                <span className="movement-filter-option-value">{selectedLabel}</span>
-                <span className="movement-filter-option-chevron" aria-hidden="true" />
-            </summary>
-            <div className="movement-filter-option-list" role="group" aria-label={`Opciones de ${title.toLocaleLowerCase('es')}`}>
-                <button type="button" aria-pressed={!value} onClick={() => onSelect('')}>Todos</button>
-                {options.map((option) => (
-                    <button
-                        key={option.value}
-                        type="button"
-                        aria-pressed={value === option.value}
-                        onClick={() => onSelect(option.value)}
-                    >
-                        {option.label}
-                    </button>
-                ))}
-            </div>
-        </details>
-    );
-}
-
-interface MovementDateRangeFilterProps {
-    dateFrom: string;
-    dateTo: string;
-    onChange: (dateFrom: string, dateTo: string) => void;
-}
-
-function MovementDateRangeFilter({ dateFrom, dateTo, onChange }: MovementDateRangeFilterProps) {
-    const rangeLabel = dateFrom && dateTo
-        ? `${movementDateLabel.format(new Date(`${dateFrom}T00:00:00`))} – ${movementDateLabel.format(new Date(`${dateTo}T00:00:00`))}`
-        : dateFrom
-            ? `Desde ${movementDateLabel.format(new Date(`${dateFrom}T00:00:00`))}`
-            : dateTo
-                ? `Hasta ${movementDateLabel.format(new Date(`${dateTo}T00:00:00`))}`
+export default function Movements({ movements, allMovements, products, onNew }: MovementsProps) {
+    const [columnFilters, setColumnFilters] = useState<MovementColumnFilters>({
+        category: '',
+        type: '',
+        dateFrom: '',
+        dateTo: '',
+    });
+    const productsById = new Map(products.map((product) => [product.id, product]));
+    const categoryOptions = [...new Set(allMovements
+        .map((movement) => productsById.get(movement.productId)?.category ?? '')
+        .filter(Boolean))]
+        .sort((a, b) => a.localeCompare(b, 'es'))
+        .map((category) => ({ value: category, label: category }));
+    const filteredMovements = movements.filter((movement) => {
+        const date = getMovementDate(movement.createdAt);
+        const dateKey = date ? getDateKey(date) : '';
+        return (!columnFilters.category || productsById.get(movement.productId)?.category === columnFilters.category)
+            && (!columnFilters.type || movement.type === columnFilters.type)
+            && (!columnFilters.dateFrom || dateKey >= columnFilters.dateFrom)
+            && (!columnFilters.dateTo || dateKey <= columnFilters.dateTo);
+    });
+    const hasAnyFilter = Boolean(columnFilters.category || columnFilters.type || columnFilters.dateFrom || columnFilters.dateTo);
+    const dateFilterLabel = columnFilters.dateFrom && columnFilters.dateTo
+        ? `${movementDateLabel.format(new Date(`${columnFilters.dateFrom}T00:00:00`))} – ${movementDateLabel.format(new Date(`${columnFilters.dateTo}T00:00:00`))}`
+        : columnFilters.dateFrom
+            ? `Desde ${movementDateLabel.format(new Date(`${columnFilters.dateFrom}T00:00:00`))}`
+            : columnFilters.dateTo
+                ? `Hasta ${movementDateLabel.format(new Date(`${columnFilters.dateTo}T00:00:00`))}`
                 : 'Todos';
-
-    return (
-        <details className="movement-filter-option movement-date-range-filter">
-            <summary>
-                <span>Fecha</span>
-                <span className="movement-filter-option-value">{rangeLabel}</span>
-                <span className="movement-filter-option-chevron" aria-hidden="true" />
-            </summary>
-            <div className="movement-date-range-calendar">
-                <div className="movement-date-range-inputs">
+    const dateFilterValue = columnFilters.dateFrom && columnFilters.dateTo
+        ? `${columnFilters.dateFrom}|${columnFilters.dateTo}`
+        : columnFilters.dateFrom || columnFilters.dateTo;
+    const filterDefinitions = [
+        {
+            title: 'Categoría',
+            value: columnFilters.category,
+            options: categoryOptions,
+            onSelect: (category: string) => setColumnFilters((filters) => ({ ...filters, category })),
+        },
+        {
+            title: 'Tipo',
+            value: columnFilters.type,
+            options: [
+                { value: 'entrada', label: 'Entrada' },
+                { value: 'salida', label: 'Salida' },
+            ],
+            onSelect: (type: string) => setColumnFilters((filters) => ({ ...filters, type })),
+        },
+        {
+            title: 'Fecha',
+            value: dateFilterValue,
+            displayValue: dateFilterLabel,
+            content: (
+                <div className="table-filter-date-range">
                     <label>
                         Desde
                         <input
                             type="date"
-                            value={dateFrom}
                             aria-label="Fecha inicial"
+                            value={columnFilters.dateFrom}
                             onChange={(event) => {
                                 const nextDate = event.target.value;
-                                onChange(nextDate, dateTo && nextDate && nextDate > dateTo ? '' : dateTo);
+                                setColumnFilters((filters) => ({
+                                    ...filters,
+                                    dateFrom: nextDate,
+                                    dateTo: filters.dateTo && nextDate && nextDate > filters.dateTo ? '' : filters.dateTo,
+                                }));
                             }}
                         />
                     </label>
@@ -125,65 +120,20 @@ function MovementDateRangeFilter({ dateFrom, dateTo, onChange }: MovementDateRan
                         Hasta
                         <input
                             type="date"
-                            value={dateTo}
                             aria-label="Fecha final"
+                            value={columnFilters.dateTo}
                             onChange={(event) => {
                                 const nextDate = event.target.value;
-                                if (nextDate && dateFrom && nextDate < dateFrom) {
-                                    onChange(nextDate, dateFrom);
-                                } else {
-                                    onChange(dateFrom, nextDate);
-                                }
+                                setColumnFilters((filters) => nextDate && filters.dateFrom && nextDate < filters.dateFrom
+                                    ? { ...filters, dateFrom: nextDate, dateTo: filters.dateFrom }
+                                    : { ...filters, dateTo: nextDate });
                             }}
                         />
                     </label>
                 </div>
-            </div>
-        </details>
-    );
-}
-
-export default function Movements({ movements, allMovements, products, onNew }: MovementsProps) {
-    const [filtersOpen, setFiltersOpen] = useState(false);
-    const [columnFilters, setColumnFilters] = useState<MovementColumnFilters>({
-        category: '',
-        product: '',
-        type: '',
-        dateFrom: '',
-        dateTo: '',
-    });
-    const productsById = new Map(products.map((product) => [product.id, product]));
-    const movementProducts = [...new Map(allMovements.map((movement) => [
-        movement.productId,
-        {
-            value: movement.productId,
-            label: movement.productName,
-            category: productsById.get(movement.productId)?.category ?? '',
+            ),
         },
-    ] as const)).values()];
-    const categoryOptions = [...new Set(movementProducts.map((product) => product.category).filter(Boolean))]
-        .sort((a, b) => a.localeCompare(b, 'es'))
-        .map((category) => ({ value: category, label: category }));
-    const productOptions = movementProducts
-        .filter((product) => !columnFilters.category || product.category === columnFilters.category)
-        .sort((a, b) => a.label.localeCompare(b.label, 'es'))
-        .map(({ value, label }) => ({ value, label }));
-    const filteredMovements = movements.filter((movement) => {
-        const date = getMovementDate(movement.createdAt);
-        const dateKey = date ? getDateKey(date) : '';
-        return (!columnFilters.category || productsById.get(movement.productId)?.category === columnFilters.category)
-            && (!columnFilters.product || movement.productId === columnFilters.product)
-            && (!columnFilters.type || movement.type === columnFilters.type)
-            && (!columnFilters.dateFrom || dateKey >= columnFilters.dateFrom)
-            && (!columnFilters.dateTo || dateKey <= columnFilters.dateTo);
-    });
-    const hasAnyFilter = Boolean(columnFilters.category || columnFilters.product || columnFilters.type || columnFilters.dateFrom || columnFilters.dateTo);
-    const activeColumnFilterCount = [
-        columnFilters.category,
-        columnFilters.product,
-        columnFilters.type,
-        columnFilters.dateFrom || columnFilters.dateTo,
-    ].filter(Boolean).length;
+    ];
 
     return (
         <>
@@ -200,67 +150,11 @@ export default function Movements({ movements, allMovements, products, onNew }: 
                 </button>
             </div>
             <section className="panel table-panel movement-history-panel">
-                <div className="movement-date-filters" aria-label="Filtros de movimientos">
-                    {hasAnyFilter && (
-                        <button
-                            type="button"
-                            className="movement-filter-clear"
-                            onClick={() => {
-                                setColumnFilters({ category: '', product: '', type: '', dateFrom: '', dateTo: '' });
-                            }}
-                        >
-                            Limpiar filtros
-                        </button>
-                    )}
-                    <section className="movement-filter-accordion">
-                        <button
-                            type="button"
-                            id="movement-filter-toggle"
-                            className="movement-more-filters"
-                            aria-label={activeColumnFilterCount ? `Filtros, ${activeColumnFilterCount} activos` : 'Filtros'}
-                            title="Filtros"
-                            aria-expanded={filtersOpen}
-                            aria-controls="movement-extra-filters"
-                            onClick={() => setFiltersOpen((open) => !open)}
-                        >
-                            <span className="movement-filter-title">
-                                <Icon name="filter" />
-                                {activeColumnFilterCount > 0 && <span className="movement-filter-badge">{activeColumnFilterCount}</span>}
-                            </span>
-                        </button>
-                        <div
-                            className="movement-extra-filters"
-                            id="movement-extra-filters"
-                            role="region"
-                            aria-labelledby="movement-filter-toggle"
-                            hidden={!filtersOpen}
-                        >
-                            <MovementFilterOption
-                                title="Categoría"
-                                value={columnFilters.category}
-                                options={categoryOptions}
-                                onSelect={(value) => setColumnFilters((filters) => ({ ...filters, category: value, product: '' }))}
-                            />
-                            <MovementFilterOption
-                                title="Producto"
-                                value={columnFilters.product}
-                                options={productOptions}
-                                onSelect={(value) => setColumnFilters((filters) => ({ ...filters, product: value }))}
-                            />
-                            <MovementFilterOption
-                                title="Tipo"
-                                value={columnFilters.type}
-                                options={[{ value: 'entrada', label: 'Entrada' }, { value: 'salida', label: 'Salida' }]}
-                                onSelect={(value) => setColumnFilters((filters) => ({ ...filters, type: value }))}
-                            />
-                            <MovementDateRangeFilter
-                                dateFrom={columnFilters.dateFrom}
-                                dateTo={columnFilters.dateTo}
-                                onChange={(dateFrom, dateTo) => setColumnFilters((filters) => ({ ...filters, dateFrom, dateTo }))}
-                            />
-                        </div>
-                    </section>
-                </div>
+                <TableFilterMenu
+                    idPrefix="movements"
+                    filters={filterDefinitions}
+                    onClear={() => setColumnFilters({ category: '', type: '', dateFrom: '', dateTo: '' })}
+                />
                 <div className="table-meta">
                     <span>Historial de movimientos</span>
                     <span>{filteredMovements.length} registros</span>
@@ -279,26 +173,47 @@ interface MovementTableProps {
     hasFilters: boolean;
 }
 
+type MovementSortColumn = 'productName' | 'type' | 'quantity' | 'createdAt';
+
 export function MovementTable({ movements, hasFilters }: MovementTableProps) {
-    const pagination = usePagination(movements);
+    const [sort, setSort] = useState<{ column: MovementSortColumn; direction: SortDirection } | null>(null);
+    const sortedMovements = sort
+        ? [...movements].sort((a, b) => {
+            const comparison = sort.column === 'productName' || sort.column === 'type'
+                ? a[sort.column].localeCompare(b[sort.column], 'es', { sensitivity: 'base', numeric: true })
+                : sort.column === 'quantity'
+                    ? a.quantity - b.quantity
+                    : (getMovementDate(a.createdAt)?.getTime() ?? 0) - (getMovementDate(b.createdAt)?.getTime() ?? 0);
+            return sort.direction === 'ascending' ? comparison : -comparison;
+        })
+        : movements;
+    const pagination = usePagination(sortedMovements);
+
+    function cycleSort(column: MovementSortColumn) {
+        setSort((current) => {
+            if (current?.column !== column) return { column, direction: 'ascending' };
+            if (current.direction === 'ascending') return { column, direction: 'descending' };
+            return null;
+        });
+    }
 
     return (
         <>
-            <Table>
+            <Table className="mobile-card-table movements-card-table">
                 <table>
                     <thead>
                         <tr>
-                            <th>
-                                Producto
+                            <th aria-sort={sort?.column === 'productName' ? sort.direction : 'none'}>
+                                <TableSortButton label="Producto" direction={sort?.column === 'productName' ? sort.direction : null} onClick={() => cycleSort('productName')} />
                             </th>
-                            <th>
-                                Tipo
+                            <th aria-sort={sort?.column === 'type' ? sort.direction : 'none'}>
+                                <TableSortButton label="Tipo" direction={sort?.column === 'type' ? sort.direction : null} onClick={() => cycleSort('type')} />
                             </th>
-                            <th>
-                                Cantidad
+                            <th aria-sort={sort?.column === 'quantity' ? sort.direction : 'none'}>
+                                <TableSortButton label="Cantidad" direction={sort?.column === 'quantity' ? sort.direction : null} onClick={() => cycleSort('quantity')} />
                             </th>
-                            <th>
-                                Fecha
+                            <th aria-sort={sort?.column === 'createdAt' ? sort.direction : 'none'}>
+                                <TableSortButton label="Fecha" direction={sort?.column === 'createdAt' ? sort.direction : null} onClick={() => cycleSort('createdAt')} />
                             </th>
                         </tr>
                     </thead>
@@ -308,23 +223,23 @@ export function MovementTable({ movements, hasFilters }: MovementTableProps) {
                                 const date = getMovementDate(movement.createdAt);
                                 return (
                                     <tr key={movement.id}>
-                                        <td>
+                                        <td data-label="Producto">
                                             <div className="product-cell">
                                                 <div className="product-avatar">{movement.productName.slice(0, 1).toUpperCase()}</div>
                                                 <div><strong>{movement.productName}</strong></div>
                                             </div>
                                         </td>
-                                        <td>
+                                        <td data-label="Tipo">
                                             <span className={`movement-type ${movement.type}`}>
                                                 {movement.type === 'entrada' ? '↓ Entrada' : '↑ Salida'}
                                             </span>
                                         </td>
-                                        <td>
+                                        <td data-label="Cantidad">
                                             <strong className={movement.type === 'entrada' ? 'positive-quantity' : 'negative-quantity'}>
                                                 {movement.type === 'entrada' ? '+' : '−'}{movement.quantity}
                                             </strong>
                                         </td>
-                                        <td>{date ? movementDateTime.format(date) : '—'}</td>
+                                        <td data-label="Fecha">{date ? movementDateTime.format(date) : '—'}</td>
                                     </tr>
                                 );
                             })

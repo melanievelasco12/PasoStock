@@ -101,6 +101,107 @@
 
 .product-modal .field small { color: var(--muted); font-size: 10px; line-height: 1.4; }
 
+.category-picker-control {
+  position: relative;
+}
+
+.category-picker-control input {
+  width: 100%;
+  padding-right: 42px !important;
+}
+
+.category-picker-accordion > summary {
+  position: absolute;
+  top: 0;
+  right: 0;
+  display: flex;
+  width: 39px;
+  height: 39px;
+  align-items: center;
+  justify-content: center;
+  color: var(--muted);
+  cursor: pointer;
+  list-style: none;
+}
+
+.category-picker-accordion > summary::-webkit-details-marker {
+  display: none;
+}
+
+.category-picker-accordion > summary:focus-visible {
+  border-radius: 6px;
+  outline: 2px solid #789477;
+  outline-offset: -3px;
+}
+
+.category-picker-chevron {
+  width: 8px;
+  height: 8px;
+  margin-top: -4px;
+  border-right: 1.5px solid currentColor;
+  border-bottom: 1.5px solid currentColor;
+  transform: rotate(45deg);
+  transition: transform .18s ease;
+}
+
+.category-picker-accordion[open] .category-picker-chevron {
+  margin-top: 4px;
+  transform: rotate(225deg);
+}
+
+.category-picker-options {
+  display: grid;
+  gap: 3px;
+  margin-top: 6px;
+  padding: 6px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  animation: category-picker-expand .16s ease-out;
+}
+
+.category-picker-options-scrollable {
+  max-height: min(40vh, 112px);
+  overflow-y: scroll;
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
+}
+
+.category-picker-options button {
+  min-height: 34px;
+  padding: 0 9px;
+  color: var(--ink);
+  background: transparent;
+  border: 0;
+  border-radius: 5px;
+  cursor: pointer;
+  font: inherit;
+  font-size: 12px;
+  text-align: left;
+}
+
+.category-picker-options button:hover,
+.category-picker-options button[aria-pressed="true"] {
+  color: var(--green);
+  background: #e9efe5;
+}
+
+.category-picker-options button:focus-visible {
+  outline: 2px solid #789477;
+  outline-offset: 1px;
+}
+
+.category-picker-empty {
+  padding: 8px;
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 400;
+}
+
+@keyframes category-picker-expand {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
 
 
 .product-modal .stock-fields {

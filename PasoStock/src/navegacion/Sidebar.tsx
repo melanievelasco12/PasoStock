@@ -26,7 +26,7 @@ export default function Sidebar({ view, lowStock, profileName, user, handleSignO
             </div>
             <div className="side-label">MENÚ PRINCIPAL</div>
             <Navigation view={view} lowStock={lowStock} onNavigate={onNavigate} />
-            <button type="button" className="mobile-signout-button" onClick={handleSignOut}>
+            <button type="button" className="mobile-signout-button" aria-label="Cerrar sesión" onClick={handleSignOut}>
                 <Icon name="logout" />
                 <span>Salir</span>
             </button>

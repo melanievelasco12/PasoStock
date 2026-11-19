@@ -2,42 +2,54 @@
     position: relative;
     z-index: 2;
     display: flex;
-    align-items: end;
+    min-height: 48px;
+    align-items: center;
+    justify-content: space-between;
     flex-wrap: wrap;
-    gap: 10px;
-    padding: 14px 17px;
+    gap: 12px;
+    padding: 8px 17px;
+    background: linear-gradient(90deg, #f8f4ec, #fffcf6);
     border-bottom: 1px solid #ece3d6;
 }
 
 .table-filter-menu {
-    position: static;
-    display: grid;
-    flex: 0 0 40px;
-    margin-left: auto;
-    background: #fffcf6;
-    border: 1px solid #e1d7c8;
-    border-radius: 6px;
+    position: relative;
+    display: block;
+    flex: 0 0 auto;
+    order: 1;
 }
 
 .table-filter-toggle {
     display: flex;
-    width: 100%;
-    height: 34px;
+    min-height: 30px;
     align-items: center;
     justify-content: center;
-    padding: 0;
-    color: #463d32;
+    gap: 7px;
+    padding: 0 10px;
+    color: #62594e;
     background: transparent;
     border: 0;
+    border-radius: 6px;
     cursor: pointer;
     font: inherit;
     font-size: 10px;
+    font-weight: 600;
+    transition: color .15s ease, background-color .15s ease, border-color .15s ease;
 }
 
-.table-filter-toggle:hover,
-.table-filter-toggle:focus-visible {
+.table-filter-toggle:hover {
     background: #f1eee5;
-    outline: 0;
+}
+
+.table-filter-toggle[aria-expanded="true"],
+.table-filter-toggle.has-active-filters {
+    color: var(--green);
+    background: #e9efe5;
+}
+
+.table-filter-toggle:focus-visible {
+    outline: 2px solid #789477;
+    outline-offset: 2px;
 }
 
 .table-filter-icon {
@@ -48,6 +60,8 @@
 }
 
 .table-filter-icon svg { width: 18px; height: 18px; }
+
+.table-filter-label { white-space: nowrap; }
 
 .table-filter-badge {
     position: absolute;
@@ -69,8 +83,8 @@
 .table-filter-popover {
     position: absolute;
     z-index: 20;
-    top: calc(100% - 1px);
-    right: 17px;
+    top: calc(100% + 5px);
+    left: 0;
     display: grid;
     width: min(220px, calc(100vw - 40px));
     max-height: min(65vh, 420px);
@@ -159,17 +173,39 @@
 .table-filter-date-range input { width: 100%; min-width: 0; height: 28px; padding: 0 4px; color: #463d32; background: #fff; border: 1px solid #e1d7c8; border-radius: 4px; font: inherit; font-size: 8px; }
 
 .table-filter-clear {
+    order: 2;
+    min-height: 30px;
     margin: 0;
-    padding: 4px 0;
+    padding: 0 10px;
+    margin-left: auto;
     color: var(--green);
     background: transparent;
     border: 0;
+    border-radius: 6px;
     cursor: pointer;
     font-size: 10px;
     font-weight: 600;
 }
 
-.table-filter-clear:hover { text-decoration: underline; }
+.table-filter-clear:hover { background: #f1eee5; }
+
+.table-filter-clear:focus-visible {
+    outline: 2px solid #789477;
+    outline-offset: 2px;
+}
+
+.movement-history-panel .table-meta,
+.report-table .table-meta {
+    align-items: center;
+    padding: 15px 18px;
+    background: linear-gradient(90deg, #f8f4ec, #fffcf6);
+}
+
+.movement-history-panel .table-meta span:first-child,
+.report-table .table-meta span:first-child {
+    color: var(--green);
+    font-size: 11px;
+}
 
 .products-table-panel.panel.table-panel,
 .report-table.panel.table-panel { position: relative; overflow: visible; }
