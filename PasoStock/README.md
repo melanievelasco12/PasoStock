@@ -22,7 +22,15 @@ PasoStock/
 └── vite.config.ts           Configuración de Vite
 ```
 
-Las pantallas adicionales de categorías, proveedores y configuración se conservan dentro de `src/paginas/`. Los estilos siguen siendo CSS global: varias pantallas comparten clases, así que convertirlos a CSS Modules solo por cambiar el nombre podría ocultar esos estilos.
+Los módulos disponibles son:
+
+- **Inicio**: resumen del inventario, actividad reciente y alertas de stock bajo.
+- **Productos**: creación, edición, activación/desactivación, búsqueda y filtros de productos.
+- **Movimientos**: registro y consulta de entradas y salidas.
+- **Reportes**: métricas, gráficos y exportación de información.
+- **Configuración**: nombre visible, preferencias de vista y tema.
+
+Las categorías se gestionan desde el formulario de productos; no existe un módulo independiente de proveedores. La mayoría de los estilos son CSS compartido, aunque el dashboard también utiliza `Inicio.module.css`.
 
 `dist/` se genera al compilar para el hosting y `node_modules/` contiene dependencias locales; no se editan manualmente ni se suben como código fuente.
 
@@ -39,6 +47,16 @@ npm.cmd run dev
 ```
 
 El proyecto utiliza TypeScript con React. `npm.cmd run typecheck` valida los tipos y `npm.cmd run build` ejecuta esa validación antes de generar la versión de producción.
+
+Comandos disponibles:
+
+```powershell
+npm.cmd run dev        # servidor de desarrollo
+npm.cmd run typecheck  # comprobación de TypeScript
+npm.cmd run lint       # revisión estática
+npm.cmd run test       # pruebas automatizadas
+npm.cmd run build      # compilación de producción
+```
 
 La configuración local de Firebase se lee desde `.env.local`, excluido de Git. Copia `.env.example` a `.env.local` y completa `VITE_FIREBASE_API_KEY`, `VITE_FIREBASE_AUTH_DOMAIN`, `VITE_FIREBASE_PROJECT_ID` y `VITE_FIREBASE_APP_ID` con los datos de tu aplicación web de Firebase. Reinicia Vite después de editarlas.
 
