@@ -1,4 +1,5 @@
 import Navigation from './Navigation';
+import { Icon } from '../componentes/Icon';
 import type { User } from 'firebase/auth';
 import type { PageView, Product } from '../types';
 
@@ -25,6 +26,10 @@ export default function Sidebar({ view, lowStock, profileName, user, handleSignO
             </div>
             <div className="side-label">MENÚ PRINCIPAL</div>
             <Navigation view={view} lowStock={lowStock} onNavigate={onNavigate} />
+            <button type="button" className="mobile-signout-button" onClick={handleSignOut}>
+                <Icon name="logout" />
+                <span>Salir</span>
+            </button>
             <div className="sidebar-bottom">
                 <div className="user-profile">
                     <div className="avatar">{(profileName || user.email || 'U').slice(0, 1).toUpperCase()}</div>

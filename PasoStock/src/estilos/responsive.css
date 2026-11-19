@@ -24,7 +24,7 @@
 }
 
 @media (max-width: 600px) {
-  body { min-width: 360px; }
+  body { min-width: 0; }
   .sidebar { width: 57px; padding-right: 6px; padding-left: 6px; }
   .main-area { margin-left: 57px; }
   .topbar { height: 55px; padding: 0 12px; }
@@ -263,4 +263,38 @@
   .product-modal .stock-fields { grid-template-columns: minmax(0,1fr); gap: 12px; padding: 12px; }
   .product-modal .stock-fields > p { grid-column: auto; }
   .product-modal .modal-actions { position: static; margin: 0 -17px -17px; padding: 14px 17px 17px; background: var(--surface); }
+}
+
+@media (max-width: 850px) {
+  .sidebar { overflow-x: hidden; }
+  .main-nav { width: auto; min-width: 0; flex: 1 1 0; }
+  .nav-item { min-width: 0; flex: 1 1 0; white-space: normal; overflow-wrap: anywhere; }
+  .mobile-signout-button {
+    display: flex;
+    width: 48px;
+    min-height: 55px;
+    flex: 0 0 48px;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    padding: 5px 2px;
+    color: #e0d8cb;
+    background: transparent;
+    border: 0;
+    border-radius: 7px;
+    font-size: 9px;
+  }
+  .mobile-signout-button svg { width: 17px; height: 17px; color: #b9c9b2; }
+  .mobile-signout-button:hover { color: #fffdf8; background: #ffffff1c; }
+}
+
+@media (min-width: 851px) {
+  .mobile-signout-button { display: none; }
+}
+
+@media (max-width: 650px) {
+  .main-nav { gap: 1px; }
+  .nav-item { gap: 2px; padding-right: 1px; padding-left: 1px; font-size: 8px; line-height: 1.15; }
+  .mobile-signout-button { width: 44px; flex-basis: 44px; font-size: 8px; }
 }
