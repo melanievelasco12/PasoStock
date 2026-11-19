@@ -16,6 +16,8 @@ import { pageDescriptions } from './paginas/pageDescriptions';
 import { authErrorMessage, isFirebaseAuthError } from './utils/authErrorMessage';
 import { categorySlug, normalizeLabel } from './utils/categories';
 import { formatUnitAmount } from './utils/formatters';
+import { isProductUnit, productUnits } from './utils/productUnits';
+import { displayUserName } from './utils/userDisplay';
 import type { Category, ModalView, Movement, MovementType, PageView, Product } from './types';
 import { Fragment as _Fragment, jsx as jsxRuntime, jsxs as jsxsRuntime } from 'react/jsx-runtime';
 
@@ -25,30 +27,6 @@ function _jsx<T extends ElementType>(type: T, props: ComponentProps<T>, key?: Ke
 
 function _jsxs<T extends ElementType>(type: T, props: ComponentProps<T>, key?: Key): ReactElement {
     return jsxsRuntime(type, props, key);
-}
-const productUnits = [
-    { value: 'unidad', label: 'Unidad (u)' },
-    { value: 'kg', label: 'Kilogramo (kg)' },
-    { value: 'g', label: 'Gramo (g)' },
-    { value: 'lb', label: 'Libra (lb)' },
-    { value: 'oz', label: 'Onza (oz)' },
-    { value: 'litro', label: 'Litro (L)' },
-    { value: 'mililitro', label: 'Mililitro (ml)' },
-    { value: 'galon', label: 'Galón (gal)' },
-    { value: 'tonelada', label: 'Tonelada (t)' },
-    { value: 'caja', label: 'Caja' },
-    { value: 'paquete', label: 'Paquete' },
-    { value: 'docena', label: 'Docena' },
-    { value: 'metro', label: 'Metro (m)' },
-    { value: 'centimetro', label: 'Centímetro (cm)' },
-    { value: 'par', label: 'Par' },
-    { value: 'rollo', label: 'Rollo' },
-    { value: 'saco', label: 'Saco' },
-    { value: 'botella', label: 'Botella' },
-] as const;
-
-function isProductUnit(value: string): boolean {
-    return productUnits.some((unit) => unit.value === value);
 }
 function App() {
     const [user, setUser] = useState<User | null>(null);
@@ -365,7 +343,7 @@ function App() {
     const activeProducts = products.filter((product) => product.active);
     const lowStock = activeProducts.filter((product) => product.stock <= product.minStock);
     const totalUnits = activeProducts.reduce((sum, product) => sum + product.stock, 0);
-    const displayName = profileName.trim() || user.email?.split('@')[0]?.split(/[._-]+/).filter(Boolean).map((part) => part.charAt(0).toLocaleUpperCase('es') + part.slice(1)).join(' ') || 'Usuario';
+    const displayName = displayUserName(profileName, user.email);
     const filteredProducts = products.filter((product) => {
         const query = productSearch.trim().toLowerCase();
         return !query || `${product.name} ${product.brand} ${product.code} ${product.category}`.toLowerCase().includes(query);

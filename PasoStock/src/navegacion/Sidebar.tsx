@@ -1,5 +1,4 @@
 import Navigation from './Navigation';
-import { Icon } from '../componentes/Icon';
 import type { User } from 'firebase/auth';
 import type { PageView, Product } from '../types';
 

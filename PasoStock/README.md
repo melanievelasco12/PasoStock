@@ -1,11 +1,11 @@
-# Sistema de inventario — PASO STROCK
+# PasoStock — Sistema de inventario
 
 Aplicación web de control de existencias con React, TypeScript/TSX, Firebase Authentication y Cloud Firestore.
 
 ## Estructura del proyecto
 
 ```text
-sistema-inventario/
+PasoStock/
 ├── public/                 Recursos estáticos publicados tal cual
 ├── src/
 │   ├── App.tsx              Coordinación de sesión, navegación y acciones
@@ -33,7 +33,7 @@ Requiere Node.js 20.19+ o 22.12+.
 Desde la carpeta `PROYETCTO` del workspace, entra primero en la carpeta de la aplicación:
 
 ```powershell
-cd .\sistema-inventario
+cd .\PasoStock
 npm.cmd install
 npm.cmd run dev
 ```
@@ -73,6 +73,7 @@ Antes de cargar inventario real, prueba las reglas y transacciones con productos
 ```powershell
 npm.cmd run build
 npm.cmd run lint
+npm.cmd run test
 ```
 
 El alcance excluye facturación electrónica, contabilidad, múltiples sucursales y aplicación móvil.
