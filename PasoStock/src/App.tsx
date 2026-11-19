@@ -6,7 +6,7 @@ import { Icon } from './componentes/Icon';
 import Modal from './componentes/Modal/Modal';
 import Sidebar from './navegacion/Sidebar';
 import { AccessErrorScreen, LoadingScreen, LoginScreen } from './paginas/Login/Login';
-import Dashboard from './paginas/Inicio/Inicio';
+import Dashboard from './paginas/Dashboard/Inicio';
 import Movements from './paginas/Movimientos/Movimientos';
 import Products from './paginas/Productos/Productos';
 import Reports from './paginas/Reportes/Reportes';
