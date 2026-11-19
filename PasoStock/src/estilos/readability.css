@@ -39,14 +39,24 @@
 
 @media (max-width: 600px) {
     .app-shell .page-subtitle { font-size: 13px; }
-    .app-shell .button { font-size: 11px; }
+    .app-shell .button { font-size: 12px; }
     .app-shell .panel-heading h2 { font-size: 14px; }
-    .app-shell .panel-heading p { font-size: 11px; }
-    .app-shell .stat-label { font-size: 11px; }
-    .app-shell .stat-detail { font-size: 10px; }
-    .app-shell th { font-size: 10px; }
-    .app-shell td { font-size: 11px; }
-    .app-shell .field { font-size: 11px; }
+    .app-shell .panel-heading p { font-size: 12px; }
+    .app-shell .stat-label { font-size: 12px; }
+    .app-shell .stat-detail { font-size: 11px; }
+    .app-shell th { font-size: 11px; }
+    .app-shell td { font-size: 12px; }
+    .app-shell .field { font-size: 12px; }
     .app-shell .field input,
     .app-shell .field select { font-size: 12px; }
+    .app-shell .nav-item { font-size: 10px; }
+    .app-shell .mobile-signout-button { font-size: 10px; }
+    .app-shell .top-search input { font-size: 11px; }
+    .app-shell .table-column-filter,
+    .app-shell .table-filter-menu,
+    .app-shell .table-filter-date-range input { font-size: 11px; }
+    .app-shell .table-scroll.mobile-card-table thead::before,
+    .app-shell .table-scroll.mobile-card-table tbody td::before { font-size: 11px; }
+    .app-shell .table-scroll.mobile-card-table .table-sort-button,
+    .app-shell .table-scroll.mobile-card-table .products-category-filter > summary { font-size: 11px; }
 }

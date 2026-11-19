@@ -111,23 +111,21 @@
   }
 
   .table-scroll.mobile-card-table tbody td {
-    display: flex;
+    display: grid;
     width: auto;
     min-width: 0;
     align-items: flex-start;
-    justify-content: space-between;
-    flex-wrap: wrap;
-    gap: 8px;
+    justify-items: start;
+    gap: 4px;
     padding: 8px 0;
     color: var(--ink);
     border: 0;
     overflow-wrap: anywhere;
-    text-align: right;
+    text-align: left;
     white-space: normal;
   }
 
   .table-scroll.mobile-card-table tbody td::before {
-    flex: 0 0 auto;
     color: var(--muted);
     content: attr(data-label);
     font-size: 9px;

@@ -26,10 +26,6 @@ export default function Sidebar({ view, lowStock, profileName, user, handleSignO
             </div>
             <div className="side-label">MENÚ PRINCIPAL</div>
             <Navigation view={view} lowStock={lowStock} onNavigate={onNavigate} />
-            <button type="button" className="mobile-signout-button" aria-label="Cerrar sesión" onClick={handleSignOut}>
-                <Icon name="logout" />
-                <span>Salir</span>
-            </button>
             <div className="sidebar-bottom">
                 <div className="user-profile">
                     <div className="avatar">{(profileName || user.email || 'U').slice(0, 1).toUpperCase()}</div>
