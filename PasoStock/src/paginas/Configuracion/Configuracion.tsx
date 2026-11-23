@@ -12,6 +12,7 @@ interface SettingsProps {
 }
 
 export default function Settings({ user, profileName, compactView, darkMode, saving, onSubmit }: SettingsProps) {
+    const canChangePassword = user.providerData.some((provider) => provider.providerId === 'password');
     return (
         <section className="settings-grid">
             <form className="panel settings-panel" onSubmit={onSubmit}>
@@ -59,6 +60,45 @@ export default function Settings({ user, profileName, compactView, darkMode, sav
                     </button>
                 </div>
             </form>
+            {canChangePassword ? (
+                <form className="panel settings-panel" onSubmit={onSubmit}>
+                    <div className="panel-heading settings-heading">
+                        <div>
+                            <h2>Cambiar contraseña</h2>
+                            <p>Confirma tu contraseña actual para establecer una nueva.</p>
+                        </div>
+                        <span className="settings-icon"><Icon name="lock" /></span>
+                    </div>
+                    <label className="field">
+                        Contraseña actual
+                        <input name="currentPassword" type="password" autoComplete="current-password" required />
+                    </label>
+                    <label className="field">
+                        Nueva contraseña
+                        <input name="newPassword" type="password" autoComplete="new-password" minLength={6} required />
+                    </label>
+                    <label className="field">
+                        Confirmar nueva contraseña
+                        <input name="confirmPassword" type="password" autoComplete="new-password" minLength={6} required />
+                    </label>
+                    <div className="settings-actions">
+                        <button className="button button-primary" disabled={saving}>
+                            <Icon name="check" />
+                            {saving ? 'Actualizando...' : 'Cambiar contraseña'}
+                        </button>
+                    </div>
+                </form>
+            ) : (
+                <section className="panel settings-panel">
+                    <div className="panel-heading settings-heading">
+                        <div>
+                            <h2>Contraseña</h2>
+                            <p>Esta cuenta usa un proveedor externo para iniciar sesión. Administra la contraseña desde ese proveedor.</p>
+                        </div>
+                        <span className="settings-icon"><Icon name="lock" /></span>
+                    </div>
+                </section>
+            )}
         </section>
     );
 }

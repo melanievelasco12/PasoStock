@@ -17,7 +17,7 @@ interface LoginScreenProps {
 
 export function LoginScreen({ configured, error, notice, busy, initialEmail, onClearMessages, onSubmit, onRegister, onGoogleSignIn, onPasswordReset }: LoginScreenProps) {
     const [email, setEmail] = useState(initialEmail);
-    const [rememberSession, setRememberSession] = useState(true);
+    const [rememberSession, setRememberSession] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
     const [registering, setRegistering] = useState(false);
     const emailInput = useRef<HTMLInputElement>(null);

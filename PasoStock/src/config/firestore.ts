@@ -1,4 +1,4 @@
-import { collection, doc, onSnapshot, orderBy, query, runTransaction, serverTimestamp } from 'firebase/firestore';
+import { collection, doc, getDocsFromServer, onSnapshot, orderBy, query, runTransaction, serverTimestamp } from 'firebase/firestore';
 import { auth, db } from './firebase';
 import type { DocumentData, Firestore, Unsubscribe } from 'firebase/firestore';
 import type {
@@ -70,6 +70,19 @@ export function subscribeToInventory(
         onError(error);
     });
     return stop;
+}
+export async function refreshInventoryFromServer(): Promise<InventorySnapshot> {
+    const database = requireDb();
+    const productsRef = query(collection(database, organizationPath('products')), orderBy('name'));
+    const movementsRef = query(collection(database, organizationPath('movements')), orderBy('createdAt', 'desc'));
+    const [productsSnapshot, movementsSnapshot] = await Promise.all([
+        getDocsFromServer(productsRef),
+        getDocsFromServer(movementsRef),
+    ]);
+    return {
+        products: productsSnapshot.docs.map((item) => readProduct(item.id, item.data({ serverTimestamps: 'estimate' }))),
+        movements: movementsSnapshot.docs.map((item) => readMovement(item.id, item.data({ serverTimestamps: 'estimate' }))),
+    };
 }
 export function subscribeToCategories(
     onChange: (categories: Category[]) => void,

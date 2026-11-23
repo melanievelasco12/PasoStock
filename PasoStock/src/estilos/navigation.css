@@ -46,7 +46,7 @@
 
 .topbar { display: flex; height: 66px; align-items: center; justify-content: space-between; padding: 0 38px; background: #fff; border-bottom: 1px solid var(--line); }
 
-.top-actions { display: flex; align-items: center; gap: 17px; }
+.top-actions { position: relative; display: flex; align-items: center; gap: 17px; }
 
 .today-date { color: #828b84; font-size: 10px; }
 
@@ -203,7 +203,7 @@
 
 .topbar { position: relative; z-index: 6; }
 
-.notification-menu { position: relative; }
+.notification-menu { position: static; }
 
 .notification-button.has-alerts {
   color: #b42318;

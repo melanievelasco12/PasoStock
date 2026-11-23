@@ -45,6 +45,27 @@
 
 .movement-history-panel.panel.table-panel { position: relative; overflow: visible; }
 
+.movement-history-panel .movement-table-meta { align-items: center; }
+
+.movement-refresh-button {
+  display: inline-grid;
+  width: 32px;
+  height: 32px;
+  flex: 0 0 auto;
+  place-items: center;
+  color: var(--green);
+  background: transparent;
+  border: 1px solid #e5dccd;
+  border-radius: 7px;
+  cursor: pointer;
+}
+
+.movement-refresh-button svg { width: 17px; height: 17px; }
+
+.movement-refresh-button:hover { background: #f7f3e9; }
+
+.movement-refresh-button:focus-visible { outline: 2px solid #789477; outline-offset: 2px; }
+
 .heading-actions:not(.dashboard-heading-actions) > .search-box { display: none; }
 
 .stat-card,.panel,.shortcut-card {

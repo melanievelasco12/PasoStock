@@ -1,7 +1,7 @@
-import { browserLocalPersistence, browserSessionPersistence, createUserWithEmailAndPassword, GoogleAuthProvider, onAuthStateChanged, sendPasswordResetEmail, setPersistence, signInWithEmailAndPassword, signInWithPopup, signOut, updateProfile, type User } from 'firebase/auth';
+import { browserLocalPersistence, browserSessionPersistence, createUserWithEmailAndPassword, EmailAuthProvider, GoogleAuthProvider, onAuthStateChanged, reauthenticateWithCredential, sendPasswordResetEmail, setPersistence, signInWithEmailAndPassword, signInWithPopup, signOut, updatePassword, updateProfile, type User } from 'firebase/auth';
 import { useEffect, useState, type ComponentProps, type ElementType, type FormEvent, type Key, type ReactElement } from 'react';
 import { auth, firebaseConfigured } from './config/firebase';
-import { createProduct, deleteProduct, getInventoryErrorMessage, registerMovement, setProductActive, subscribeToInventory, subscribeToCategories, updateProduct } from './config/firestore';
+import { createProduct, deleteProduct, getInventoryErrorMessage, refreshInventoryFromServer, registerMovement, setProductActive, subscribeToInventory, subscribeToCategories, updateProduct } from './config/firestore';
 import { Icon } from './componentes/Icon';
 import Modal from './componentes/Modal/Modal';
 import Sidebar from './navegacion/Sidebar';
@@ -189,6 +189,24 @@ function App() {
     useEffect(() => {
         if (!user)
             return;
+        const refreshInventory = () => {
+            setNotice('Actualizando movimientos y existencias...');
+            void refreshInventoryFromServer()
+                .then((data) => {
+                    setProducts(data.products);
+                    setMovements(data.movements);
+                    setNotice('Movimientos y existencias actualizados desde Firebase.');
+                })
+                .catch((error: unknown) => {
+                    setNotice(getInventoryErrorMessage(error));
+                });
+        };
+        window.addEventListener('pasostock:refresh-inventory', refreshInventory);
+        return () => window.removeEventListener('pasostock:refresh-inventory', refreshInventory);
+    }, [user]);
+    useEffect(() => {
+        if (!user)
+            return;
         return subscribeToCategories(setCategories, (error) => {
             setCategoryError(getInventoryErrorMessage(error));
         });
@@ -371,7 +389,12 @@ function App() {
         const signedInUser = user;
         if (!signedInUser)
             return;
-        const form = new FormData(event.currentTarget);
+        const formElement = event.currentTarget;
+        const form = new FormData(formElement);
+        if (form.has('currentPassword')) {
+            await changePassword(formElement);
+            return;
+        }
         const name = String(form.get('displayName') ?? '').trim();
         const compact = form.get('compactView') === 'on';
         const dark = form.get('darkMode') === 'on';
@@ -398,6 +421,46 @@ function App() {
         }
         catch {
             setNotice('El perfil se actualizó, pero el navegador no pudo guardar la preferencia visual.');
+        }
+        finally {
+            setSaving(false);
+        }
+    }
+    async function changePassword(formElement: HTMLFormElement) {
+        const signedInUser = user;
+        if (!signedInUser?.email)
+            return;
+        const form = new FormData(formElement);
+        const currentPassword = String(form.get('currentPassword') ?? '');
+        const newPassword = String(form.get('newPassword') ?? '');
+        const confirmPassword = String(form.get('confirmPassword') ?? '');
+        if (newPassword.length < 6) {
+            setNotice('La nueva contraseña debe tener al menos 6 caracteres.');
+            return;
+        }
+        if (newPassword !== confirmPassword) {
+            setNotice('La nueva contraseña y su confirmación no coinciden.');
+            return;
+        }
+        setSaving(true);
+        try {
+            const credential = EmailAuthProvider.credential(signedInUser.email, currentPassword);
+            await reauthenticateWithCredential(signedInUser, credential);
+            await updatePassword(signedInUser, newPassword);
+            formElement.reset();
+            setNotice('La contraseña se actualizó correctamente.');
+        }
+        catch (error) {
+            const code = isFirebaseAuthError(error) ? error.code : '';
+            setNotice(code === 'auth/wrong-password' || code === 'auth/invalid-credential'
+                ? 'La contraseña actual es incorrecta.'
+                : code === 'auth/weak-password' || code === 'auth/password-does-not-meet-requirements'
+                    ? 'La nueva contraseña no cumple los requisitos de seguridad.'
+                    : code === 'auth/requires-recent-login'
+                        ? 'Por seguridad, cierra sesión e inicia de nuevo antes de cambiar la contraseña.'
+                        : code === 'auth/network-request-failed'
+                            ? 'No se pudo conectar con Firebase. Revisa tu conexión e inténtalo de nuevo.'
+                            : `No se pudo cambiar la contraseña${code ? ` (${code})` : '. Inténtalo de nuevo.'}`);
         }
         finally {
             setSaving(false);

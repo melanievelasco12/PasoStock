@@ -3,7 +3,7 @@ import { Fragment as _Fragment, jsx as _jsx, jsxs as _jsxs } from 'react/jsx-run
 export type IconName = 'grid' | 'box' | 'arrows' | 'chart' | 'search' | 'bell' | 'plus'
     | 'edit' | 'trash' | 'download' | 'close' | 'leaf' | 'mail' | 'lock' | 'eye'
     | 'eyeOff' | 'arrowRight' | 'home' | 'tag' | 'users' | 'settings' | 'archive' | 'phone'
-    | 'pin' | 'check' | 'entrada' | 'salida' | 'filter' | 'logout';
+    | 'pin' | 'check' | 'entrada' | 'salida' | 'filter' | 'logout' | 'refresh';
 
 export function Icon({ name }: { name: IconName }) {
     const paths = {
@@ -36,6 +36,7 @@ export function Icon({ name }: { name: IconName }) {
         entrada: _jsx(_Fragment, { children: _jsx("path", { d: "M12 3v11m-4.5-4.5L12 14l4.5-4.5M4 15v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3" }) }),
         salida: _jsx(_Fragment, { children: _jsx("path", { d: "M12 14V3m-4.5 4.5L12 3l4.5 4.5M4 15v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3" }) }),
         logout: _jsxs(_Fragment, { children: [_jsx("path", { d: "M10 17l5-5-5-5M15 12H3" }), _jsx("path", { d: "M12 3h7a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-7" })] }),
+        refresh: _jsxs(_Fragment, { children: [_jsx("path", { d: "M20 11a8 8 0 0 0-14.9-3L4 10" }), _jsx("path", { d: "M4 5v5h5M4 13a8 8 0 0 0 14.9 3L20 14" }), _jsx("path", { d: "M20 19v-5h-5" })] }),
     };
     return _jsx("svg", { "aria-hidden": "true", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "1.7", strokeLinecap: "round", strokeLinejoin: "round", children: paths[name] ?? paths.grid });
 }

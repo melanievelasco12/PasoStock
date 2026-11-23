@@ -5,6 +5,7 @@ import { TableFilterMenu } from '../../componentes/Table/TableFilterMenu';
 import TableSortButton, { type SortDirection } from '../../componentes/Table/TableSortButton';
 import { usePagination } from '../../componentes/Table/usePagination';
 import { EmptyState } from '../../componentes/common';
+import { Icon } from '../../componentes/Icon';
 import type { Movement, MovementType, Product } from '../../types';
 
 const movementDateTime = new Intl.DateTimeFormat('es-EC', {
@@ -40,6 +41,7 @@ interface MovementsProps {
 }
 
 interface MovementColumnFilters {
+    product: string;
     category: string;
     type: string;
     dateFrom: string;
@@ -48,6 +50,7 @@ interface MovementColumnFilters {
 
 export default function Movements({ movements, allMovements, products, onNew }: MovementsProps) {
     const [columnFilters, setColumnFilters] = useState<MovementColumnFilters>({
+        product: '',
         category: '',
         type: '',
         dateFrom: '',
@@ -59,15 +62,24 @@ export default function Movements({ movements, allMovements, products, onNew }: 
         .filter(Boolean))]
         .sort((a, b) => a.localeCompare(b, 'es'))
         .map((category) => ({ value: category, label: category }));
+    const productOptions = [...new Map(allMovements.map((movement) => [
+        movement.productId,
+        {
+            value: movement.productId,
+            label: productsById.get(movement.productId)?.name ?? movement.productName,
+        },
+    ])).values()]
+        .sort((a, b) => a.label.localeCompare(b.label, 'es', { sensitivity: 'base', numeric: true }));
     const filteredMovements = movements.filter((movement) => {
         const date = getMovementDate(movement.createdAt);
         const dateKey = date ? getDateKey(date) : '';
-        return (!columnFilters.category || productsById.get(movement.productId)?.category === columnFilters.category)
+        return (!columnFilters.product || movement.productId === columnFilters.product)
+            && (!columnFilters.category || productsById.get(movement.productId)?.category === columnFilters.category)
             && (!columnFilters.type || movement.type === columnFilters.type)
             && (!columnFilters.dateFrom || dateKey >= columnFilters.dateFrom)
             && (!columnFilters.dateTo || dateKey <= columnFilters.dateTo);
     });
-    const hasAnyFilter = Boolean(columnFilters.category || columnFilters.type || columnFilters.dateFrom || columnFilters.dateTo);
+    const hasAnyFilter = Boolean(columnFilters.product || columnFilters.category || columnFilters.type || columnFilters.dateFrom || columnFilters.dateTo);
     const dateFilterLabel = columnFilters.dateFrom && columnFilters.dateTo
         ? `${movementDateLabel.format(new Date(`${columnFilters.dateFrom}T00:00:00`))} – ${movementDateLabel.format(new Date(`${columnFilters.dateTo}T00:00:00`))}`
         : columnFilters.dateFrom
@@ -79,6 +91,12 @@ export default function Movements({ movements, allMovements, products, onNew }: 
         ? `${columnFilters.dateFrom}|${columnFilters.dateTo}`
         : columnFilters.dateFrom || columnFilters.dateTo;
     const filterDefinitions = [
+        {
+            title: 'Producto',
+            value: columnFilters.product,
+            options: productOptions,
+            onSelect: (product: string) => setColumnFilters((filters) => ({ ...filters, product })),
+        },
         {
             title: 'Categoría',
             value: columnFilters.category,
@@ -153,11 +171,20 @@ export default function Movements({ movements, allMovements, products, onNew }: 
                 <TableFilterMenu
                     idPrefix="movements"
                     filters={filterDefinitions}
-                    onClear={() => setColumnFilters({ category: '', type: '', dateFrom: '', dateTo: '' })}
+                    onClear={() => setColumnFilters({ product: '', category: '', type: '', dateFrom: '', dateTo: '' })}
                 />
-                <div className="table-meta">
+                <div className="table-meta movement-table-meta">
                     <span>Historial de movimientos</span>
                     <span>{filteredMovements.length} registros</span>
+                    <button
+                        type="button"
+                        className="movement-refresh-button"
+                        aria-label="Actualizar movimientos y existencias"
+                        title="Actualizar movimientos y existencias"
+                        onClick={() => window.dispatchEvent(new Event('pasostock:refresh-inventory'))}
+                    >
+                        <Icon name="refresh" />
+                    </button>
                 </div>
                 <MovementTable
                     movements={filteredMovements}
