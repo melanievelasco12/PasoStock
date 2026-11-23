@@ -189,9 +189,25 @@ export async function deleteProduct(product: Product): Promise<void> {
         if (!snapshot.exists())
             throw new InventoryError('product-not-found');
         const current = readProduct(snapshot.id, snapshot.data());
-        if (current.movementCount !== 0 || current.stock !== 0) {
+        if (current.movementCount === 0 && current.stock === 0) {
+            transaction.delete(productRef);
+            return;
+        }
+        if (current.movementCount !== 1 || current.stock <= 0 || !current.lastMovementId) {
             throw new InventoryError('product-has-movements');
         }
+        const movementRef = doc(database, organizationPath(`movements/${current.lastMovementId}`));
+        const movementSnapshot = await transaction.get(movementRef);
+        if (!movementSnapshot.exists())
+            throw new InventoryError('product-has-movements');
+        const movement = readMovement(movementSnapshot.id, movementSnapshot.data());
+        if (movement.productId !== current.id
+            || movement.type !== 'entrada'
+            || movement.note !== 'Stock inicial'
+            || movement.quantity !== current.stock) {
+            throw new InventoryError('product-has-movements');
+        }
+        transaction.delete(movementRef);
         transaction.delete(productRef);
     });
 }

@@ -9,6 +9,7 @@ import type { Product } from '../../types';
 
 interface ProductsProps {
     products: Product[];
+    deletableProductIds: ReadonlySet<string>;
     hasSearch: boolean;
     onClearSearch: () => void;
     onEdit: (product: Product) => void;
@@ -18,7 +19,7 @@ interface ProductsProps {
 
 type SortColumn = 'category' | 'name' | 'price' | 'stock';
 
-export default function Products({ products, hasSearch, onClearSearch, onEdit, onDelete, onSetActive }: ProductsProps) {
+export default function Products({ products, deletableProductIds, hasSearch, onClearSearch, onEdit, onDelete, onSetActive }: ProductsProps) {
     const [status, setStatus] = useState<'active' | 'inactive' | ''>('active');
     const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
     const [sort, setSort] = useState<{ column: SortColumn; direction: SortDirection } | null>(null);
@@ -179,9 +180,21 @@ export default function Products({ products, hasSearch, onClearSearch, onEdit, o
                                                 </button>
                                             )}
                                             <button
-                                                aria-label={`Eliminar ${product.name}`}
-                                                title={product.movementCount > 0 ? 'No se puede borrar un producto con historial' : 'Eliminar producto'}
-                                                disabled={product.movementCount > 0 || product.stock > 0}
+                                                aria-label={deletableProductIds.has(product.id)
+                                                    ? `Eliminar ${product.name}`
+                                                    : product.movementCount > 0
+                                                        ? `No se puede eliminar ${product.name} porque tiene historial`
+                                                        : product.stock > 0
+                                                            ? `No se puede eliminar ${product.name} porque tiene existencias`
+                                                            : `No se puede eliminar ${product.name} porque tiene movimientos asociados`}
+                                                title={deletableProductIds.has(product.id)
+                                                    ? 'Eliminar producto'
+                                                    : product.movementCount > 0
+                                                        ? 'No se puede borrar un producto con otros movimientos en su historial'
+                                                        : product.stock > 0
+                                                            ? 'No se puede eliminar un producto con existencias'
+                                                            : 'No se puede eliminar un producto con movimientos asociados'}
+                                                disabled={!deletableProductIds.has(product.id)}
                                                 onClick={() => onDelete(product)}
                                             >
                                                 <Icon name="trash" />

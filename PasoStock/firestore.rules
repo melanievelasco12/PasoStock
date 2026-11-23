@@ -104,6 +104,17 @@ service cloud.firestore {
           || (type == 'salida' && oldStock >= quantity && newStock == oldStock - quantity));
     }
 
+    function deletingOnlyInitialStockMovement(orgId, productId, movementId, stock) {
+      let movementPath = /databases/$(database)/documents/organizations/$(orgId)/movements/$(movementId);
+      let movement = get(movementPath).data;
+      return exists(movementPath)
+        && !existsAfter(movementPath)
+        && movement.productId == productId
+        && movement.type == 'entrada'
+        && movement.quantity == stock
+        && movement.note == 'Stock inicial';
+    }
+
     match /organizations/{orgId}/products/{productId} {
       allow get, list: if hasInventoryAccess(orgId);
 
@@ -162,8 +173,21 @@ service cloud.firestore {
         );
 
       allow delete: if hasInventoryAccess(orgId)
-        && resource.data.stock == 0
-        && resource.data.movementCount == 0;
+        && (
+          (resource.data.stock == 0
+            && resource.data.movementCount == 0)
+          || (
+            resource.data.stock > 0
+            && resource.data.movementCount == 1
+            && resource.data.lastMovementId is string
+            && deletingOnlyInitialStockMovement(
+              orgId,
+              productId,
+              resource.data.lastMovementId,
+              resource.data.stock
+            )
+          )
+        );
     }
 
     match /organizations/{orgId}/movements/{movementId} {
@@ -194,7 +218,16 @@ service cloud.firestore {
           )
         );
 
-      allow update, delete: if false;
+      allow update: if false;
+
+      allow delete: if hasInventoryAccess(orgId)
+        && resource.data.type == 'entrada'
+        && resource.data.note == 'Stock inicial'
+        && exists(/databases/$(database)/documents/organizations/$(orgId)/products/$(resource.data.productId))
+        && !existsAfter(/databases/$(database)/documents/organizations/$(orgId)/products/$(resource.data.productId))
+        && get(/databases/$(database)/documents/organizations/$(orgId)/products/$(resource.data.productId)).data.movementCount == 1
+        && get(/databases/$(database)/documents/organizations/$(orgId)/products/$(resource.data.productId)).data.lastMovementId == movementId
+        && get(/databases/$(database)/documents/organizations/$(orgId)/products/$(resource.data.productId)).data.stock == resource.data.quantity;
     }
 
     match /organizations/{orgId}/categories/{categoryId} {
