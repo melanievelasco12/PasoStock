@@ -174,6 +174,7 @@ export async function updateProduct(product: ProductUpdate): Promise<void> {
             price: product.price,
             unit: product.unit,
             unitAmount: product.unitAmount,
+            stock: product.stock,
             minStock: product.minStock,
             updatedAt: serverTimestamp(),
         });

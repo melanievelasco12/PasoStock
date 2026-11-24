@@ -153,8 +153,7 @@ service cloud.firestore {
         )
         && (
           (
-            request.resource.data.stock == resource.data.stock
-            && request.resource.data.movementCount == resource.data.movementCount
+            request.resource.data.movementCount == resource.data.movementCount
             && request.resource.data.lastMovementId == resource.data.lastMovementId
           )
           || (
