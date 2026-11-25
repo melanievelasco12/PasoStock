@@ -1,6 +1,7 @@
 import { Icon } from '../../componentes/Icon';
-import type { FormEventHandler } from 'react';
+import { useState, type FormEventHandler } from 'react';
 import type { User } from 'firebase/auth';
+import type { FontSizeLevel } from '../../types';
 
 interface SettingsProps {
     user: User;
@@ -11,7 +12,25 @@ interface SettingsProps {
     onSubmit: FormEventHandler<HTMLFormElement>;
 }
 
+function isFontSizeLevel(level: string | null): level is FontSizeLevel {
+    return level === 'small' || level === 'normal' || level === 'large';
+}
+
+function getFontSizeLevel(userId: string): FontSizeLevel {
+    try {
+        const level = localStorage.getItem(`pasostock-font-size-${userId}`);
+        return isFontSizeLevel(level) ? level : 'normal';
+    }
+    catch {
+        return 'normal';
+    }
+}
+
 export default function Settings({ user, profileName, compactView, darkMode, saving, onSubmit }: SettingsProps) {
+    const [visualMode, setVisualMode] = useState<'compact' | 'dark' | null>(
+        compactView ? 'compact' : darkMode ? 'dark' : null,
+    );
+    const [fontSizeLevel] = useState(() => getFontSizeLevel(user.uid));
     const canChangePassword = user.providerData.some((provider) => provider.providerId === 'password');
     return (
         <section className="settings-grid">
@@ -44,14 +63,34 @@ export default function Settings({ user, profileName, compactView, darkMode, sav
                         <strong>Vista compacta</strong>
                         <small>Reduce el espacio de las tablas para mostrar más filas.</small>
                     </span>
-                    <input name="compactView" type="checkbox" defaultChecked={compactView} />
+                    <input
+                        name="visualMode"
+                        type="checkbox"
+                        value="compact"
+                        checked={visualMode === 'compact'}
+                        onChange={(event) => setVisualMode(event.currentTarget.checked ? 'compact' : null)}
+                    />
                 </label>
                 <label className="preference-option">
                     <span>
                         <strong>Modo oscuro</strong>
                         <small>Usa colores oscuros en las pantallas del inventario para reducir el brillo.</small>
                     </span>
-                    <input name="darkMode" type="checkbox" defaultChecked={darkMode} />
+                    <input
+                        name="visualMode"
+                        type="checkbox"
+                        value="dark"
+                        checked={visualMode === 'dark'}
+                        onChange={(event) => setVisualMode(event.currentTarget.checked ? 'dark' : null)}
+                    />
+                </label>
+                <label className="field">
+                    Tamaño de letra
+                    <select name="fontSize" defaultValue={fontSizeLevel}>
+                        <option value="small">Pequeña</option>
+                        <option value="normal">Normal</option>
+                        <option value="large">Grande</option>
+                    </select>
                 </label>
                 <div className="settings-actions">
                     <button className="button button-primary" disabled={saving}>

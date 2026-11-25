@@ -1,18 +1,18 @@
 .table-scroll { width: 100%; overflow-x: auto; }
 
 .table-sort-button { display: inline-flex; align-items: center; gap: 6px; padding: 0; color: inherit; background: transparent; border: 0; cursor: pointer; font: inherit; font-weight: 500; white-space: nowrap; }
-.table-sort-button span { color: var(--green); font-size: 13px; line-height: 1; }
+.table-sort-button span { color: var(--green); font-size: calc(13px * var(--app-font-scale, 1)); line-height: 1; }
 .table-sort-button:focus-visible { outline: 2px solid #789477; outline-offset: 2px; }
 .table-sort-button-icon-only { justify-content: center; }
 
-.table-column-filter { display: block; width: 100%; min-width: 76px; margin-top: 7px; padding: 6px 7px; color: #463d32; background: #fffcf6; border: 1px solid #e1d7c8; border-radius: 5px; font: inherit; font-size: 10px; }
+.table-column-filter { display: block; width: 100%; min-width: 76px; margin-top: 7px; padding: 6px 7px; color: #463d32; background: #fffcf6; border: 1px solid #e1d7c8; border-radius: 5px; font: inherit; font-size: calc(10px * var(--app-font-scale, 1)); }
 .table-column-filter:focus-visible { border-color: #789477; outline: 0; box-shadow: 0 0 0 3px #78947720; }
 
 .category-name { display: flex; align-items: center; gap: 9px; }
 
 .category-icon { width: 30px; height: 30px; border-radius: 7px; }
 
-.table-pagination { display: flex; align-items: center; justify-content: space-between; gap: 14px; padding: 12px 17px; color: #62594e; border-top: 1px solid #ece3d6; font-size: 11px; }
+.table-pagination { display: flex; align-items: center; justify-content: space-between; gap: 14px; padding: 12px 17px; color: #62594e; border-top: 1px solid #ece3d6; font-size: calc(11px * var(--app-font-scale, 1)); }
 .pagination-page-size { display: inline-flex; align-items: center; gap: 8px; }
 .pagination-page-size select { min-height: 32px; padding: 0 8px; color: #463d32; background: #fffcf6; border: 1px solid #e1d7c8; border-radius: 6px; font: inherit; }
 .pagination-page-size select:focus-visible { border-color: #789477; outline: 0; box-shadow: 0 0 0 3px #78947720; }
@@ -56,7 +56,7 @@
     margin-bottom: 8px;
     color: var(--muted);
     content: 'Ordenar por';
-    font-size: 9px;
+    font-size: calc(9px * var(--app-font-scale, 1));
     font-weight: 600;
   }
 
@@ -83,11 +83,11 @@
     background: var(--surface);
     border: 1px solid var(--line);
     border-radius: 999px;
-    font-size: 9px;
+    font-size: calc(9px * var(--app-font-scale, 1));
   }
 
   .table-scroll.mobile-card-table .table-sort-button span {
-    font-size: 12px;
+    font-size: calc(12px * var(--app-font-scale, 1));
   }
 
   .table-scroll.mobile-card-table tbody {
@@ -128,7 +128,7 @@
   .table-scroll.mobile-card-table tbody td::before {
     color: var(--muted);
     content: attr(data-label);
-    font-size: 9px;
+    font-size: calc(9px * var(--app-font-scale, 1));
     font-weight: 600;
     text-align: left;
   }
@@ -151,7 +151,7 @@
     background: var(--surface);
     border: 1px solid var(--line);
     border-radius: 999px;
-    font-size: 9px;
+    font-size: calc(9px * var(--app-font-scale, 1));
   }
 
   .table-scroll.mobile-card-table .products-category-heading > .table-sort-button {

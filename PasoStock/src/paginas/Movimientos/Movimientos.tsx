@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import Table from '../../componentes/Table/Table';
 import Pagination from '../../componentes/Table/Pagination';
-import { TableFilterMenu } from '../../componentes/Table/TableFilterMenu';
 import TableSortButton, { type SortDirection } from '../../componentes/Table/TableSortButton';
 import { usePagination } from '../../componentes/Table/usePagination';
 import { EmptyState } from '../../componentes/common';
@@ -15,22 +14,9 @@ const movementDateTime = new Intl.DateTimeFormat('es-EC', {
     hour: '2-digit',
     minute: '2-digit',
 });
-const movementDateLabel = new Intl.DateTimeFormat('es-EC', {
-    day: '2-digit',
-    month: 'short',
-    year: 'numeric',
-});
-
 function getMovementDate(value: string): Date | null {
     const date = new Date(value);
     return Number.isNaN(date.getTime()) ? null : date;
-}
-
-function getDateKey(date: Date): string {
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const day = String(date.getDate()).padStart(2, '0');
-    return `${year}-${month}-${day}`;
 }
 
 interface MovementsProps {
@@ -40,119 +26,7 @@ interface MovementsProps {
     onNew: (type: MovementType) => void;
 }
 
-interface MovementColumnFilters {
-    product: string;
-    category: string;
-    type: string;
-    dateFrom: string;
-    dateTo: string;
-}
-
-export default function Movements({ movements, allMovements, products, onNew }: MovementsProps) {
-    const [columnFilters, setColumnFilters] = useState<MovementColumnFilters>({
-        product: '',
-        category: '',
-        type: '',
-        dateFrom: '',
-        dateTo: '',
-    });
-    const productsById = new Map(products.map((product) => [product.id, product]));
-    const categoryOptions = [...new Set(allMovements
-        .map((movement) => productsById.get(movement.productId)?.category ?? '')
-        .filter(Boolean))]
-        .sort((a, b) => a.localeCompare(b, 'es'))
-        .map((category) => ({ value: category, label: category }));
-    const productOptions = [...new Map(allMovements.map((movement) => [
-        movement.productId,
-        {
-            value: movement.productId,
-            label: productsById.get(movement.productId)?.name ?? movement.productName,
-        },
-    ])).values()]
-        .sort((a, b) => a.label.localeCompare(b.label, 'es', { sensitivity: 'base', numeric: true }));
-    const filteredMovements = movements.filter((movement) => {
-        const date = getMovementDate(movement.createdAt);
-        const dateKey = date ? getDateKey(date) : '';
-        return (!columnFilters.product || movement.productId === columnFilters.product)
-            && (!columnFilters.category || productsById.get(movement.productId)?.category === columnFilters.category)
-            && (!columnFilters.type || movement.type === columnFilters.type)
-            && (!columnFilters.dateFrom || dateKey >= columnFilters.dateFrom)
-            && (!columnFilters.dateTo || dateKey <= columnFilters.dateTo);
-    });
-    const hasAnyFilter = Boolean(columnFilters.product || columnFilters.category || columnFilters.type || columnFilters.dateFrom || columnFilters.dateTo);
-    const dateFilterLabel = columnFilters.dateFrom && columnFilters.dateTo
-        ? `${movementDateLabel.format(new Date(`${columnFilters.dateFrom}T00:00:00`))} – ${movementDateLabel.format(new Date(`${columnFilters.dateTo}T00:00:00`))}`
-        : columnFilters.dateFrom
-            ? `Desde ${movementDateLabel.format(new Date(`${columnFilters.dateFrom}T00:00:00`))}`
-            : columnFilters.dateTo
-                ? `Hasta ${movementDateLabel.format(new Date(`${columnFilters.dateTo}T00:00:00`))}`
-                : 'Todos';
-    const dateFilterValue = columnFilters.dateFrom && columnFilters.dateTo
-        ? `${columnFilters.dateFrom}|${columnFilters.dateTo}`
-        : columnFilters.dateFrom || columnFilters.dateTo;
-    const filterDefinitions = [
-        {
-            title: 'Producto',
-            value: columnFilters.product,
-            options: productOptions,
-            onSelect: (product: string) => setColumnFilters((filters) => ({ ...filters, product })),
-        },
-        {
-            title: 'Categoría',
-            value: columnFilters.category,
-            options: categoryOptions,
-            onSelect: (category: string) => setColumnFilters((filters) => ({ ...filters, category })),
-        },
-        {
-            title: 'Tipo',
-            value: columnFilters.type,
-            options: [
-                { value: 'entrada', label: 'Entrada' },
-                { value: 'salida', label: 'Salida' },
-            ],
-            onSelect: (type: string) => setColumnFilters((filters) => ({ ...filters, type })),
-        },
-        {
-            title: 'Fecha',
-            value: dateFilterValue,
-            displayValue: dateFilterLabel,
-            content: (
-                <div className="table-filter-date-range">
-                    <label>
-                        Desde
-                        <input
-                            type="date"
-                            aria-label="Fecha inicial"
-                            value={columnFilters.dateFrom}
-                            onChange={(event) => {
-                                const nextDate = event.target.value;
-                                setColumnFilters((filters) => ({
-                                    ...filters,
-                                    dateFrom: nextDate,
-                                    dateTo: filters.dateTo && nextDate && nextDate > filters.dateTo ? '' : filters.dateTo,
-                                }));
-                            }}
-                        />
-                    </label>
-                    <label>
-                        Hasta
-                        <input
-                            type="date"
-                            aria-label="Fecha final"
-                            value={columnFilters.dateTo}
-                            onChange={(event) => {
-                                const nextDate = event.target.value;
-                                setColumnFilters((filters) => nextDate && filters.dateFrom && nextDate < filters.dateFrom
-                                    ? { ...filters, dateFrom: nextDate, dateTo: filters.dateFrom }
-                                    : { ...filters, dateTo: nextDate });
-                            }}
-                        />
-                    </label>
-                </div>
-            ),
-        },
-    ];
-
+export default function Movements({ movements, onNew }: MovementsProps) {
     return (
         <>
             <div className="movement-shortcuts">
@@ -168,14 +42,9 @@ export default function Movements({ movements, allMovements, products, onNew }: 
                 </button>
             </div>
             <section className="panel table-panel movement-history-panel">
-                <TableFilterMenu
-                    idPrefix="movements"
-                    filters={filterDefinitions}
-                    onClear={() => setColumnFilters({ product: '', category: '', type: '', dateFrom: '', dateTo: '' })}
-                />
                 <div className="table-meta movement-table-meta">
                     <span>Historial de movimientos</span>
-                    <span>{filteredMovements.length} registros</span>
+                    <span>{movements.length} registros</span>
                     <button
                         type="button"
                         className="movement-refresh-button"
@@ -186,10 +55,7 @@ export default function Movements({ movements, allMovements, products, onNew }: 
                         <Icon name="refresh" />
                     </button>
                 </div>
-                <MovementTable
-                    movements={filteredMovements}
-                    hasFilters={hasAnyFilter}
-                />
+                <MovementTable movements={movements} />
             </section>
         </>
     );
@@ -197,12 +63,11 @@ export default function Movements({ movements, allMovements, products, onNew }: 
 
 interface MovementTableProps {
     movements: Movement[];
-    hasFilters: boolean;
 }
 
 type MovementSortColumn = 'productName' | 'type' | 'quantity' | 'createdAt';
 
-export function MovementTable({ movements, hasFilters }: MovementTableProps) {
+export function MovementTable({ movements }: MovementTableProps) {
     const [sort, setSort] = useState<{ column: MovementSortColumn; direction: SortDirection } | null>(null);
     const sortedMovements = sort
         ? [...movements].sort((a, b) => {
@@ -273,9 +138,7 @@ export function MovementTable({ movements, hasFilters }: MovementTableProps) {
                             : (
                                 <tr>
                                     <td colSpan={4}>
-                                        {hasFilters
-                                            ? <EmptyState title="No hay movimientos para estos filtros" detail="Cambia o limpia los filtros para consultar otros movimientos." />
-                                            : <EmptyState title="Aún no hay movimientos" detail="Cuando registres una entrada o salida aparecerá aquí." />}
+                                        <EmptyState title="Aún no hay movimientos" detail="Cuando registres una entrada o salida aparecerá aquí." />
                                     </td>
                                 </tr>
                             )}

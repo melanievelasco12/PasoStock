@@ -32,7 +32,7 @@
     border-radius: 6px;
     cursor: pointer;
     font: inherit;
-    font-size: 10px;
+    font-size: calc(10px * var(--app-font-scale, 1));
     font-weight: 600;
     transition: color .15s ease, background-color .15s ease, border-color .15s ease;
 }
@@ -76,7 +76,7 @@
     background: var(--green);
     border: 1px solid #fffcf6;
     border-radius: 9px;
-    font-size: 8px;
+    font-size: calc(8px * var(--app-font-scale, 1));
     font-weight: 600;
 }
 
@@ -111,7 +111,7 @@
     padding: 8px 2px;
     color: #463d32;
     cursor: pointer;
-    font-size: 10px;
+    font-size: calc(10px * var(--app-font-scale, 1));
     font-weight: 600;
     list-style: none;
 }
@@ -154,7 +154,7 @@
     border-radius: 4px;
     cursor: pointer;
     font: inherit;
-    font-size: 10px;
+    font-size: calc(10px * var(--app-font-scale, 1));
     text-align: left;
 }
 
@@ -168,9 +168,9 @@
 
 .table-filter-date-range { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 7px; }
 
-.table-filter-date-range label { display: grid; min-width: 0; gap: 3px; color: #756b5e; font-size: 8px; font-weight: 400; }
+.table-filter-date-range label { display: grid; min-width: 0; gap: 3px; color: #756b5e; font-size: calc(8px * var(--app-font-scale, 1)); font-weight: 400; }
 
-.table-filter-date-range input { width: 100%; min-width: 0; height: 28px; padding: 0 4px; color: #463d32; background: #fff; border: 1px solid #e1d7c8; border-radius: 4px; font: inherit; font-size: 8px; }
+.table-filter-date-range input { width: 100%; min-width: 0; height: 28px; padding: 0 4px; color: #463d32; background: #fff; border: 1px solid #e1d7c8; border-radius: 4px; font: inherit; font-size: calc(8px * var(--app-font-scale, 1)); }
 
 .table-filter-clear {
     order: 2;
@@ -183,7 +183,7 @@
     border: 0;
     border-radius: 6px;
     cursor: pointer;
-    font-size: 10px;
+    font-size: calc(10px * var(--app-font-scale, 1));
     font-weight: 600;
 }
 
@@ -204,7 +204,7 @@
 .movement-history-panel .table-meta span:first-child,
 .report-table .table-meta span:first-child {
     color: var(--green);
-    font-size: 11px;
+    font-size: calc(11px * var(--app-font-scale, 1));
 }
 
 .products-table-panel.panel.table-panel,

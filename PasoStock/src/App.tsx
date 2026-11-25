@@ -1,5 +1,5 @@
 import { browserLocalPersistence, browserSessionPersistence, createUserWithEmailAndPassword, EmailAuthProvider, GoogleAuthProvider, onAuthStateChanged, reauthenticateWithCredential, sendPasswordResetEmail, setPersistence, signInWithEmailAndPassword, signInWithPopup, signOut, updatePassword, updateProfile, type User } from 'firebase/auth';
-import { useEffect, useState, type ComponentProps, type ElementType, type FormEvent, type Key, type ReactElement } from 'react';
+import { useEffect, useRef, useState, type ComponentProps, type ElementType, type FormEvent, type Key, type ReactElement } from 'react';
 import { auth, firebaseConfigured } from './config/firebase';
 import { createProduct, deleteProduct, getInventoryErrorMessage, refreshInventoryFromServer, registerMovement, setProductActive, subscribeToInventory, subscribeToCategories, updateProduct } from './config/firestore';
 import { Icon } from './componentes/Icon';
@@ -19,7 +19,7 @@ import { formatUnitAmount } from './utils/formatters';
 import { canDeleteProduct } from './utils/productDeletion';
 import { isProductUnit, productUnits } from './utils/productUnits';
 import { displayUserName } from './utils/userDisplay';
-import type { Category, ModalView, Movement, MovementType, PageView, Product } from './types';
+import type { Category, FontSizeLevel, ModalView, Movement, MovementType, PageView, Product } from './types';
 import { Fragment as _Fragment, jsx as jsxRuntime, jsxs as jsxsRuntime } from 'react/jsx-runtime';
 
 function _jsx<T extends ElementType>(type: T, props: ComponentProps<T>, key?: Key): ReactElement {
@@ -29,6 +29,15 @@ function _jsx<T extends ElementType>(type: T, props: ComponentProps<T>, key?: Ke
 function _jsxs<T extends ElementType>(type: T, props: ComponentProps<T>, key?: Key): ReactElement {
     return jsxsRuntime(type, props, key);
 }
+
+function isFontSizeLevel(value: unknown): value is FontSizeLevel {
+    return value === 'small' || value === 'normal' || value === 'large';
+}
+
+function getFontSizeLevel(value: string | null): FontSizeLevel {
+    return isFontSizeLevel(value) ? value : 'normal';
+}
+
 function App() {
     const [user, setUser] = useState<User | null>(null);
     const [authReady, setAuthReady] = useState(() => !auth);
@@ -45,7 +54,8 @@ function App() {
     const [view, setView] = useState<PageView>('dashboard');
     const [search, setSearch] = useState('');
     const [productSearch, setProductSearch] = useState('');
-    const [notice, setNotice] = useState('');
+    const [notice, setNoticeState] = useState('');
+    const noticeTimeout = useRef<number | null>(null);
     const [modal, setModal] = useState<ModalView>(null);
     const [editingProduct, setEditingProduct] = useState<Product | null>(null);
     const [categorySelection, setCategorySelection] = useState('');
@@ -54,11 +64,53 @@ function App() {
     const [profileName, setProfileName] = useState('');
     const [compactView, setCompactView] = useState(false);
     const [darkMode, setDarkMode] = useState(false);
+    const [fontSizeLevel, setFontSizeLevel] = useState<FontSizeLevel>('normal');
     const [notificationsOpen, setNotificationsOpen] = useState(false);
     const [notificationElement, setNotificationElement] = useState<HTMLDivElement | null>(null);
     const [productDialogElement, setProductDialogElement] = useState<HTMLElement | null>(null);
     const [productDialogOpener, setProductDialogOpener] = useState<HTMLElement | null>(null);
     const [today] = useState(() => new Date());
+
+    function setNotice(message: string): void {
+        if (noticeTimeout.current !== null) {
+            window.clearTimeout(noticeTimeout.current);
+            noticeTimeout.current = null;
+        }
+        if (!message) {
+            const toast = document.querySelector<HTMLElement>('.toast');
+            if (!toast) {
+                setNoticeState('');
+                return;
+            }
+            toast.classList.add('toast-exit');
+            noticeTimeout.current = window.setTimeout(() => {
+                noticeTimeout.current = null;
+                setNoticeState('');
+            }, 250);
+            return;
+        }
+        document.querySelector('.toast')?.classList.remove('toast-exit');
+        setNoticeState(message);
+        noticeTimeout.current = window.setTimeout(() => {
+            noticeTimeout.current = null;
+            setNotice('');
+        }, 3000);
+    }
+
+    useEffect(() => () => {
+        if (noticeTimeout.current !== null) {
+            window.clearTimeout(noticeTimeout.current);
+        }
+    }, []);
+
+    useEffect(() => {
+        const scales: Record<FontSizeLevel, number> = {
+            small: 0.9,
+            normal: 1,
+            large: 1.15,
+        };
+        document.documentElement.style.setProperty('--app-font-scale', String(scales[fontSizeLevel]));
+    }, [fontSizeLevel]);
     function setMovementType(value: string): void {
         if (value !== 'entrada' && value !== 'salida') {
             throw new Error(`Tipo de movimiento inválido: ${value}`);
@@ -153,6 +205,7 @@ function App() {
                 try {
                     setCompactView(localStorage.getItem(`pasostock-compact-${currentUser.uid}`) === 'true');
                     setDarkMode(localStorage.getItem(`pasostock-dark-${currentUser.uid}`) === 'true');
+                    setFontSizeLevel(getFontSizeLevel(localStorage.getItem(`pasostock-font-size-${currentUser.uid}`)));
                 }
                 catch {
                     setNotice('No se pudieron cargar las preferencias locales de visualización.');
@@ -161,6 +214,7 @@ function App() {
             else {
                 setCompactView(false);
                 setDarkMode(false);
+                setFontSizeLevel('normal');
             }
             setAuthReady(true);
         }, (error) => {
@@ -396,8 +450,14 @@ function App() {
             return;
         }
         const name = String(form.get('displayName') ?? '').trim();
-        const compact = form.get('compactView') === 'on';
-        const dark = form.get('darkMode') === 'on';
+        const visualMode = form.get('visualMode');
+        const compact = visualMode === 'compact';
+        const dark = visualMode === 'dark';
+        const fontSize = form.get('fontSize');
+        if (!isFontSizeLevel(fontSize)) {
+            setNotice('Selecciona un tamaño de letra válido.');
+            return;
+        }
         if (!name || name.length > 80) {
             setNotice('El nombre del perfil es obligatorio y debe tener máximo 80 caracteres.');
             return;
@@ -415,8 +475,10 @@ function App() {
         try {
             localStorage.setItem(`pasostock-compact-${signedInUser.uid}`, String(compact));
             localStorage.setItem(`pasostock-dark-${signedInUser.uid}`, String(dark));
+            localStorage.setItem(`pasostock-font-size-${signedInUser.uid}`, String(fontSize));
             setCompactView(compact);
             setDarkMode(dark);
+            setFontSizeLevel(fontSize);
             setNotice('Perfil y preferencias actualizados.');
         }
         catch {

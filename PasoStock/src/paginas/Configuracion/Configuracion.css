@@ -5,15 +5,15 @@
 
 .settings-heading { align-items: center; }
 
-.settings-heading h2 { font-size: 15px; }
+.settings-heading h2 { font-size: calc(15px * var(--app-font-scale, 1)); }
 
-.settings-heading p { color: #62594e; font-size: 10px; }
+.settings-heading p { color: #62594e; font-size: calc(10px * var(--app-font-scale, 1)); }
 
 .settings-icon,.category-icon { display: grid; width: 34px; height: 34px; flex: 0 0 auto; place-items: center; color: #244a35; background: #e9efe5; border-radius: 9px; }
 
 .settings-icon svg,.category-icon svg { width: 17px; height: 17px; }
 
-.settings-panel .field { font-size: 11px; }
+.settings-panel .field { font-size: calc(11px * var(--app-font-scale, 1)); }
 
 .settings-panel .field input { height: 42px; }
 
@@ -25,9 +25,9 @@
 
 .preference-option strong,.preference-option small { display: block; }
 
-.preference-option strong { color: #463d32; font-size: 11px; }
+.preference-option strong { color: #463d32; font-size: calc(11px * var(--app-font-scale, 1)); }
 
-.preference-option small { margin-top: 4px; color: #62594e; font-size: 10px; }
+.preference-option small { margin-top: 4px; color: #62594e; font-size: calc(10px * var(--app-font-scale, 1)); }
 
 .preference-option input { width: 17px; height: 17px; accent-color: #244a35; }
 
@@ -54,7 +54,7 @@
 
 .settings-heading h2 {
     color: #3e4c40;
-    font-size: 14px;
+    font-size: calc(14px * var(--app-font-scale, 1));
 }
 
 .settings-heading p {
@@ -119,7 +119,7 @@
 }
 
 .preference-option strong {
-    font-size: 12px;
+    font-size: calc(12px * var(--app-font-scale, 1));
 }
 
 .preference-option small {
@@ -155,7 +155,7 @@
     }
 
     .settings-heading h2 {
-        font-size: 13px;
+        font-size: calc(13px * var(--app-font-scale, 1));
     }
 
     .settings-actions .button {

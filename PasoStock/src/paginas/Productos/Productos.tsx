@@ -97,11 +97,16 @@ export default function Products({ products, deletableProductIds, hasSearch, onC
                         <tr>
                             <th aria-label="Filtrar y ordenar por categoría" aria-sort={sort?.column === 'category' ? sort.direction : 'none'}>
                                 <div className="products-category-heading">
-                                    <details className="products-category-filter">
-                                        <summary aria-label={`Categoría${selectedCategories.length ? ` (${selectedCategories.length})` : ''}`}>
-                                            <span>Categoría{selectedCategories.length ? ` (${selectedCategories.length})` : ''}</span>
+                                    <span>Categoría</span>
+                                    <TableSortButton
+                                        label="Categoría"
+                                        direction={sort?.column === 'category' ? sort.direction : null}
+                                        onClick={() => cycleSort('category')}
+                                        iconOnly
+                                    />
+                                    <details className={`products-category-filter${selectedCategories.length ? ' has-active-filter' : ''}`}>
+                                        <summary aria-label={`Filtrar por categoría${selectedCategories.length ? ` (${selectedCategories.length} seleccionadas)` : ''}`}>
                                             <Icon name="filter" />
-                                            <span className="products-category-chevron" aria-hidden="true">⌄</span>
                                         </summary>
                                         <div className="products-category-menu" role="group" aria-label="Categorías">
                                             {categories.length
@@ -121,12 +126,6 @@ export default function Products({ products, deletableProductIds, hasSearch, onC
                                             </button>
                                         </div>
                                     </details>
-                                    <TableSortButton
-                                        label="Categoría"
-                                        direction={sort?.column === 'category' ? sort.direction : null}
-                                        onClick={() => cycleSort('category')}
-                                        iconOnly
-                                    />
                                 </div>
                             </th>
                             <th aria-sort={sort?.column === 'name' ? sort.direction : 'none'}>

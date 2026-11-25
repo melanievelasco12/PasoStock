@@ -4,6 +4,8 @@ export type PageView = 'dashboard' | 'products' | 'movements' | 'reports' | 'set
 
 export type ModalView = 'product' | 'movement' | null;
 
+export type FontSizeLevel = 'small' | 'normal' | 'large';
+
 export interface Product {
     id: string;
     code: string;

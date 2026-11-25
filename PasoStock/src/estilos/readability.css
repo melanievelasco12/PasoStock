@@ -1,62 +1,62 @@
-.app-shell .page-subtitle { font-size: 14px; line-height: 1.55; }
-.app-shell .eyebrow { font-size: 11px; }
-.app-shell .button { font-size: 12px; }
+.app-shell .page-subtitle { font-size: calc(14px * var(--app-font-scale, 1)); line-height: 1.55; }
+.app-shell .eyebrow { font-size: calc(11px * var(--app-font-scale, 1)); }
+.app-shell .button { font-size: calc(12px * var(--app-font-scale, 1)); }
 .app-shell .top-user-name,
-.app-shell .today-date { font-size: 12px; }
-.app-shell .search-box input { font-size: 12px; }
-.app-shell .panel-heading h2 { font-size: 15px; }
-.app-shell .panel-heading p { font-size: 12px; line-height: 1.5; }
-.app-shell .text-button { font-size: 12px; }
-.app-shell .stat-label { font-size: 12px; line-height: 1.4; }
-.app-shell .stat-detail { font-size: 11px; line-height: 1.4; }
-.app-shell .table-meta { font-size: 12px; }
-.app-shell th { font-size: 11px; }
-.app-shell td { font-size: 12px; }
-.app-shell td strong { font-size: 12px; }
-.app-shell .field { font-size: 12px; }
+.app-shell .today-date { font-size: calc(12px * var(--app-font-scale, 1)); }
+.app-shell .search-box input { font-size: calc(12px * var(--app-font-scale, 1)); }
+.app-shell .panel-heading h2 { font-size: calc(15px * var(--app-font-scale, 1)); }
+.app-shell .panel-heading p { font-size: calc(12px * var(--app-font-scale, 1)); line-height: 1.5; }
+.app-shell .text-button { font-size: calc(12px * var(--app-font-scale, 1)); }
+.app-shell .stat-label { font-size: calc(12px * var(--app-font-scale, 1)); line-height: 1.4; }
+.app-shell .stat-detail { font-size: calc(11px * var(--app-font-scale, 1)); line-height: 1.4; }
+.app-shell .table-meta { font-size: calc(12px * var(--app-font-scale, 1)); }
+.app-shell th { font-size: calc(11px * var(--app-font-scale, 1)); }
+.app-shell td { font-size: calc(12px * var(--app-font-scale, 1)); }
+.app-shell td strong { font-size: calc(12px * var(--app-font-scale, 1)); }
+.app-shell .field { font-size: calc(12px * var(--app-font-scale, 1)); }
 .app-shell .field input,
-.app-shell .field select { font-size: 13px; }
+.app-shell .field select { font-size: calc(13px * var(--app-font-scale, 1)); }
 .app-shell .field small,
-.app-shell .form-hint { font-size: 11px; line-height: 1.5; }
+.app-shell .form-hint { font-size: calc(11px * var(--app-font-scale, 1)); line-height: 1.5; }
 .app-shell .status-badge,
 .app-shell .movement-type,
-.app-shell .warning-pill { font-size: 10px; }
-.app-shell .footer { font-size: 10px; }
+.app-shell .warning-pill { font-size: calc(10px * var(--app-font-scale, 1)); }
+.app-shell .footer { font-size: calc(10px * var(--app-font-scale, 1)); }
 .app-shell .catalog-product span,
 .app-shell .product-cell span,
-.app-shell .muted-unit { font-size: 10px; }
+.app-shell .muted-unit { font-size: calc(10px * var(--app-font-scale, 1)); }
 .app-shell .product-modal .field small,
-.app-shell .product-modal .stock-fields > p { font-size: 11px; }
+.app-shell .product-modal .stock-fields > p { font-size: calc(11px * var(--app-font-scale, 1)); }
 .app-shell .notification-panel p,
-.app-shell .notification-item small { font-size: 11px; line-height: 1.45; }
-.app-shell .shortcut-card strong { font-size: 13px; }
-.app-shell .shortcut-card small { font-size: 11px; }
+.app-shell .notification-item small { font-size: calc(11px * var(--app-font-scale, 1)); line-height: 1.45; }
+.app-shell .shortcut-card strong { font-size: calc(13px * var(--app-font-scale, 1)); }
+.app-shell .shortcut-card small { font-size: calc(11px * var(--app-font-scale, 1)); }
 .app-shell .report-result-count,
-.app-shell .movement-filter-count { font-size: 11px; }
-.app-shell .infoMovimiento strong { font-size: 12px; }
-.app-shell .infoMovimiento span { font-size: 11px; }
-.app-shell .cantidadMovimiento { font-size: 13px; }
+.app-shell .movement-filter-count { font-size: calc(11px * var(--app-font-scale, 1)); }
+.app-shell .infoMovimiento strong { font-size: calc(12px * var(--app-font-scale, 1)); }
+.app-shell .infoMovimiento span { font-size: calc(11px * var(--app-font-scale, 1)); }
+.app-shell .cantidadMovimiento { font-size: calc(13px * var(--app-font-scale, 1)); }
 
 @media (max-width: 600px) {
-    .app-shell .page-subtitle { font-size: 13px; }
-    .app-shell .button { font-size: 12px; }
-    .app-shell .panel-heading h2 { font-size: 14px; }
-    .app-shell .panel-heading p { font-size: 12px; }
-    .app-shell .stat-label { font-size: 12px; }
-    .app-shell .stat-detail { font-size: 11px; }
-    .app-shell th { font-size: 11px; }
-    .app-shell td { font-size: 12px; }
-    .app-shell .field { font-size: 12px; }
+    .app-shell .page-subtitle { font-size: calc(13px * var(--app-font-scale, 1)); }
+    .app-shell .button { font-size: calc(12px * var(--app-font-scale, 1)); }
+    .app-shell .panel-heading h2 { font-size: calc(14px * var(--app-font-scale, 1)); }
+    .app-shell .panel-heading p { font-size: calc(12px * var(--app-font-scale, 1)); }
+    .app-shell .stat-label { font-size: calc(12px * var(--app-font-scale, 1)); }
+    .app-shell .stat-detail { font-size: calc(11px * var(--app-font-scale, 1)); }
+    .app-shell th { font-size: calc(11px * var(--app-font-scale, 1)); }
+    .app-shell td { font-size: calc(12px * var(--app-font-scale, 1)); }
+    .app-shell .field { font-size: calc(12px * var(--app-font-scale, 1)); }
     .app-shell .field input,
-    .app-shell .field select { font-size: 12px; }
-    .app-shell .nav-item { font-size: 10px; }
-    .app-shell .mobile-signout-button { font-size: 10px; }
-    .app-shell .top-search input { font-size: 11px; }
+    .app-shell .field select { font-size: calc(12px * var(--app-font-scale, 1)); }
+    .app-shell .nav-item { font-size: calc(10px * var(--app-font-scale, 1)); }
+    .app-shell .mobile-signout-button { font-size: calc(10px * var(--app-font-scale, 1)); }
+    .app-shell .top-search input { font-size: calc(11px * var(--app-font-scale, 1)); }
     .app-shell .table-column-filter,
     .app-shell .table-filter-menu,
-    .app-shell .table-filter-date-range input { font-size: 11px; }
+    .app-shell .table-filter-date-range input { font-size: calc(11px * var(--app-font-scale, 1)); }
     .app-shell .table-scroll.mobile-card-table thead::before,
-    .app-shell .table-scroll.mobile-card-table tbody td::before { font-size: 11px; }
+    .app-shell .table-scroll.mobile-card-table tbody td::before { font-size: calc(11px * var(--app-font-scale, 1)); }
     .app-shell .table-scroll.mobile-card-table .table-sort-button,
-    .app-shell .table-scroll.mobile-card-table .products-category-filter > summary { font-size: 11px; }
+    .app-shell .table-scroll.mobile-card-table .products-category-filter > summary { font-size: calc(11px * var(--app-font-scale, 1)); }
 }

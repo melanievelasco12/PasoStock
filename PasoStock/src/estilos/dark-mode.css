@@ -6,6 +6,8 @@
 
 .dark-theme .main-area { background: transparent; }
 .dark-theme .topbar { color: #e7e4dc; background: #1d241f; border-color: #3b463e; }
+.dark-theme .topbar .top-user-name,
+.dark-theme .topbar .today-date { color: #e7e4dc; }
 .dark-theme .topbar,
 .dark-theme .panel,
 .dark-theme .stat-card,
@@ -50,8 +52,34 @@
 .dark-theme .movement-date-filters,
 .dark-theme .report-chart-panel,
 .dark-theme .settings-panel { background: #222925; }
+.dark-theme .movement-history-panel .movement-refresh-button {
+    color: #d4e4d3;
+    background: #29312b;
+    border-color: #718d75;
+    transition: color 140ms ease, background-color 140ms ease, border-color 140ms ease;
+}
+.dark-theme .movement-history-panel .movement-refresh-button:hover {
+    color: #f0eee8;
+    background: #34443a;
+    border-color: #a9d0ad;
+}
 .dark-theme th,
 .dark-theme .products-table-panel th { color: #d3d9d2; background: #303a33; }
+.dark-theme .products-table-panel .table-sort-button span,
+.dark-theme .movement-history-panel .table-sort-button span {
+    color: #bac3bb;
+    transition: color 140ms ease;
+}
+.dark-theme .products-table-panel th[aria-sort="ascending"] .table-sort-button span,
+.dark-theme .products-table-panel th[aria-sort="descending"] .table-sort-button span,
+.dark-theme .movement-history-panel th[aria-sort="ascending"] .table-sort-button span,
+.dark-theme .movement-history-panel th[aria-sort="descending"] .table-sort-button span,
+.dark-theme .products-table-panel .table-sort-button:hover span,
+.dark-theme .products-table-panel .table-sort-button:focus-visible span,
+.dark-theme .movement-history-panel .table-sort-button:hover span,
+.dark-theme .movement-history-panel .table-sort-button:focus-visible span {
+    color: #a9d0ad;
+}
 .dark-theme .table-pagination { border-color: #374139; }
 .dark-theme .report-download-options { background: #222925; border-color: #48594b; }
 .dark-theme .report-download-options button { color: #e7e4dc; }
@@ -100,6 +128,58 @@
 .dark-theme .movement-type.salida { color: #f0c99d; background: #4a3828; }
 .dark-theme .products-table-panel tbody tr.low-stock-row { background: #3b2928; }
 .dark-theme .products-table-panel tbody tr.low-stock-row:hover { background: #4a302e; }
+.dark-theme .products-table-panel .table-meta span:first-child { color: #a9d0ad; }
+.dark-theme .products-status-tabs button { color: #c5cdc5; }
+.dark-theme .products-status-tabs button span { color: #aab6ab; }
+.dark-theme .products-status-tabs button[aria-pressed="true"] {
+    color: #d4e4d3;
+    background: #304337;
+}
+.dark-theme .products-clear-filters { color: #a9d0ad; }
+.dark-theme .products-clear-filters:hover {
+    color: #d4e4d3;
+    background: #304337;
+}
+.dark-theme .products-status-tabs button:hover { background: #303a33; }
+.dark-theme .products-status-tabs button[aria-pressed="true"]:hover { background: #3a4d40; }
+.dark-theme .products-category-filter > summary svg { color: #a9d0ad; }
+.dark-theme .products-category-chevron { color: #bac3bb; }
+.dark-theme .products-category-menu {
+    color: #e7e4dc;
+    background: #222925;
+    border-color: #48544a;
+    box-shadow: 0 8px 20px #0005;
+}
+.dark-theme .products-category-menu label:hover {
+    color: #d4e4d3;
+    background: #304337;
+}
+.dark-theme .products-category-menu > button {
+    color: #a9d0ad;
+    border-color: #414c43;
+}
+.dark-theme .products-category-menu > button:hover { color: #d4e4d3; }
+.dark-theme .products-category-menu > button:disabled { color: #9da99f; }
+.dark-theme .products-category-empty { color: #bac3bb; }
+.dark-theme .products-table-panel .catalog-product .catalog-brand { color: #c5cdc5; }
+.dark-theme .products-table-panel .row-actions button {
+    color: #bac3bb;
+    background: #303a33;
+    border-color: #48594b;
+}
+.dark-theme .products-table-panel .row-actions button:hover {
+    color: #d4e4d3;
+    background: #34443a;
+}
+.dark-theme .products-table-panel .row-actions button:last-child:hover {
+    color: #f0c4bd;
+    background: #4a302e;
+    border-color: #69413c;
+}
+.dark-theme .products-table-panel .row-actions button:disabled:hover {
+    color: #bac3bb;
+    background: transparent;
+}
 .dark-theme .pildoraSaludable,
 .dark-theme .status-ok,
 .dark-theme .movement-type.entrada { color: #d4e4d3; background: #304337; }
@@ -118,7 +198,17 @@
     background: #1a211c;
     border-color: #48544a;
 }
+.dark-theme .settings-panel .field select {
+    color: #e7e4dc;
+    background: #1a211c;
+    border-color: #48544a;
+}
+.dark-theme .settings-panel .field select option {
+    color: #e7e4dc;
+    background: #1a211c;
+}
 .dark-theme .settings-panel .field input:focus-visible { border-color: #9ab59a; }
+.dark-theme .settings-panel .field select:focus-visible { border-color: #9ab59a; }
 .dark-theme .preference-option,
 .dark-theme .resumenActividad { background: #29312b; border-color: #414c43; }
 .dark-theme .preference-option:hover { border-color: #718d75; }

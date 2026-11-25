@@ -129,11 +129,11 @@
 }
 
 .tablaStock :global(.product-cell) strong {
-  font-size: 11px;
+  font-size: calc(11px * var(--app-font-scale, 1));
 }
 
 .tablaStock :global(.product-cell) span {
-  font-size: 9px;
+  font-size: calc(9px * var(--app-font-scale, 1));
 }
 
 .tablaStock :global(.status-badge) {
@@ -159,11 +159,11 @@
   justify-content: space-between;
   gap: 8px;
   color: #62594e;
-  font-size: 9px;
+  font-size: calc(9px * var(--app-font-scale, 1));
 }
 
 .encabezadoActividad > strong {
-  font-size: 9px;
+  font-size: calc(9px * var(--app-font-scale, 1));
   font-weight: 700;
 }
 
@@ -172,7 +172,7 @@
   align-items: center;
   gap: 4px;
   color: #81796e;
-  font-size: 8px;
+  font-size: calc(8px * var(--app-font-scale, 1));
 }
 
 .leyendaEntrada,
@@ -230,7 +230,7 @@
 
 .columnaActividad small {
   color: #81796e;
-  font-size: 8px;
+  font-size: calc(8px * var(--app-font-scale, 1));
   line-height: 1;
   text-transform: lowercase;
 }
@@ -258,7 +258,7 @@
   flex: 0 0 27px;
   place-items: center;
   border-radius: 50%;
-  font-size: 14px;
+  font-size: calc(14px * var(--app-font-scale, 1));
   font-weight: 700;
 }
 
@@ -283,18 +283,18 @@
 .infoMovimiento strong {
   overflow: hidden;
   color: #463d32;
-  font-size: 10px;
+  font-size: calc(10px * var(--app-font-scale, 1));
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
 .infoMovimiento span {
   color: #62594e;
-  font-size: 9px;
+  font-size: calc(9px * var(--app-font-scale, 1));
 }
 
 .cantidadMovimiento {
-  font-size: 11px;
+  font-size: calc(11px * var(--app-font-scale, 1));
   white-space: nowrap;
 }
 
@@ -304,6 +304,48 @@
 
 .cantidadMovimiento.salida {
   color: #a56d46;
+}
+
+:global(.dark-theme) .resumenActividad {
+  color: #e7e4dc;
+  background: #29312b;
+  border-color: #414c43;
+}
+
+:global(.dark-theme) .encabezadoActividad,
+:global(.dark-theme) .encabezadoActividad > span,
+:global(.dark-theme) .columnaActividad small {
+  color: #c5cdc5;
+}
+
+:global(.dark-theme) .listaMovimientos li {
+  border-color: #39443c;
+}
+
+:global(.dark-theme) .iconoMovimiento.entrada {
+  color: #d4e4d3;
+  background: #304337;
+}
+
+:global(.dark-theme) .iconoMovimiento.salida {
+  color: #f0c99d;
+  background: #4a3828;
+}
+
+:global(.dark-theme) .infoMovimiento strong {
+  color: #e7e4dc;
+}
+
+:global(.dark-theme) .infoMovimiento span {
+  color: #b7c1b8;
+}
+
+:global(.dark-theme) .cantidadMovimiento.entrada {
+  color: #a9d0ad;
+}
+
+:global(.dark-theme) .cantidadMovimiento.salida {
+  color: #efc395;
 }
 
 /* ---------- Móvil y tablet: un panel debajo del otro ---------- */
