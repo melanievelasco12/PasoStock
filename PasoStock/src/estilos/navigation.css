@@ -46,7 +46,7 @@
 
 .topbar { display: flex; height: 66px; align-items: center; justify-content: space-between; padding: 0 38px; background: #fff; border-bottom: 1px solid var(--line); }
 
-.top-actions { position: relative; display: flex; align-items: center; gap: 17px; }
+.top-actions { position: relative; display: flex; align-items: center; gap: 17px; margin-left: auto; }
 
 .today-date { color: #828b84; font-size: calc(10px * var(--app-font-scale, 1)); }
 

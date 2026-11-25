@@ -43,6 +43,7 @@ export interface ProductUpdate {
     price: number;
     unit: string;
     unitAmount: number;
+    stock: number;
     minStock: number;
 }
 
