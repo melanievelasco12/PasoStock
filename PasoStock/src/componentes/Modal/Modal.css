@@ -250,3 +250,48 @@
 
 
 .product-modal .modal-actions .button-primary:disabled { cursor: wait; opacity: .7; }
+
+
+.dark-theme .modal[aria-labelledby="movement-modal-title"] .modal-header h2,
+.dark-theme .modal[aria-labelledby="movement-modal-title"] .field {
+  color: #e7e4dc;
+}
+
+.dark-theme .modal[aria-labelledby="movement-modal-title"] .optional {
+  color: #bac3bb;
+}
+
+.dark-theme .modal[aria-labelledby="movement-modal-title"] .field input,
+.dark-theme .modal[aria-labelledby="movement-modal-title"] .field select {
+  color: #e7e4dc;
+  background: #1a211c;
+  border-color: #48544a;
+}
+
+.dark-theme .modal[aria-labelledby="movement-modal-title"] .field select option {
+  color: #e7e4dc;
+  background: #1a211c;
+}
+
+.dark-theme .modal[aria-labelledby="movement-modal-title"] .field input::placeholder {
+  color: #9da99f;
+}
+
+.dark-theme .modal[aria-labelledby="movement-modal-title"] .field input:focus-visible,
+.dark-theme .modal[aria-labelledby="movement-modal-title"] .field select:focus-visible {
+  border-color: #9ab59a;
+}
+
+.dark-theme .modal[aria-labelledby="movement-modal-title"] .modal-actions {
+  border-color: #414c43;
+}
+
+.dark-theme .modal[aria-labelledby="movement-modal-title"] .modal-actions .button-plain {
+  color: #e7e4dc;
+  background: #29312b80;
+  border-color: #59665b;
+}
+
+.dark-theme .modal[aria-labelledby="movement-modal-title"] .modal-actions .button-plain:hover {
+  background: #344238;
+}

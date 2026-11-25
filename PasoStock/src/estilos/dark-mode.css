@@ -200,7 +200,7 @@
 }
 .dark-theme .settings-panel .field select {
     color: #e7e4dc;
-    background: #1a211c;
+    background-color: #1a211c;
     border-color: #48544a;
 }
 .dark-theme .settings-panel .field select option {

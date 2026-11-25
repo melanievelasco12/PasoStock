@@ -1,0 +1,52 @@
+.noteCell {
+  width: 200px;
+  max-width: 200px;
+}
+
+.noteText {
+  display: block;
+  max-width: 190px;
+  overflow: hidden;
+  color: #463d32;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.emptyNote {
+  color: #6b756d;
+}
+
+.noteCounter {
+  align-self: flex-end;
+  color: #756b5e;
+  font-size: calc(9px * var(--app-font-scale, 1));
+  font-weight: 400;
+}
+
+:global(.dark-theme) .noteText {
+  color: #e7e4dc;
+}
+
+:global(.dark-theme) .emptyNote,
+:global(.dark-theme) .noteCounter {
+  color: #bac3bb;
+}
+
+@media (max-width: 650px) {
+  .noteCell {
+    width: auto;
+    max-width: none;
+  }
+
+  .noteText {
+    display: -webkit-box;
+    max-width: 100%;
+    overflow: hidden;
+    overflow-wrap: anywhere;
+    text-overflow: clip;
+    white-space: normal;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+  }
+}

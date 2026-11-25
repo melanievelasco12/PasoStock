@@ -6,6 +6,7 @@ import { usePagination } from '../../componentes/Table/usePagination';
 import { EmptyState } from '../../componentes/common';
 import { Icon } from '../../componentes/Icon';
 import type { Movement, MovementType, Product } from '../../types';
+import styles from './Movimientos.module.css';
 
 const movementDateTime = new Intl.DateTimeFormat('es-EC', {
     day: '2-digit',
@@ -104,6 +105,7 @@ export function MovementTable({ movements }: MovementTableProps) {
                             <th aria-sort={sort?.column === 'quantity' ? sort.direction : 'none'}>
                                 <TableSortButton label="Cantidad" direction={sort?.column === 'quantity' ? sort.direction : null} onClick={() => cycleSort('quantity')} />
                             </th>
+                            <th>Nota</th>
                             <th aria-sort={sort?.column === 'createdAt' ? sort.direction : 'none'}>
                                 <TableSortButton label="Fecha" direction={sort?.column === 'createdAt' ? sort.direction : null} onClick={() => cycleSort('createdAt')} />
                             </th>
@@ -131,13 +133,21 @@ export function MovementTable({ movements }: MovementTableProps) {
                                                 {movement.type === 'entrada' ? '+' : '−'}{movement.quantity}
                                             </strong>
                                         </td>
+                                        <td className={styles.noteCell} data-label="Nota">
+                                            <span
+                                                className={movement.note ? styles.noteText : styles.emptyNote}
+                                                title={movement.note || undefined}
+                                            >
+                                                {movement.note || '—'}
+                                            </span>
+                                        </td>
                                         <td data-label="Fecha">{date ? movementDateTime.format(date) : '—'}</td>
                                     </tr>
                                 );
                             })
                             : (
                                 <tr>
-                                    <td colSpan={4}>
+                                    <td colSpan={5}>
                                         <EmptyState title="Aún no hay movimientos" detail="Cuando registres una entrada o salida aparecerá aquí." />
                                     </td>
                                 </tr>

@@ -169,3 +169,33 @@
 .report-table tbody tr.low-stock-row:hover {
     background: #ffe6e2;
 }
+
+.dark-theme .report-download-menu > .button.button-outline {
+    color: #d4e4d3;
+    background: #29312b;
+    border-color: #718d75;
+    transition: color 140ms ease, background-color 140ms ease, border-color 140ms ease;
+}
+
+.dark-theme .report-download-menu > .button.button-outline:hover {
+    color: #f0eee8;
+    background: #34443a;
+    border-color: #a9d0ad;
+}
+
+.dark-theme .report-download-menu > .button.button-outline:focus-visible {
+    outline: 2px solid #a9d0ad;
+    outline-offset: 2px;
+}
+
+.dark-theme .report-table .table-sort-button span {
+    color: #bac3bb;
+    transition: color 140ms ease;
+}
+
+.dark-theme .report-table th[aria-sort="ascending"] .table-sort-button span,
+.dark-theme .report-table th[aria-sort="descending"] .table-sort-button span,
+.dark-theme .report-table .table-sort-button:hover span,
+.dark-theme .report-table .table-sort-button:focus-visible span {
+    color: #a9d0ad;
+}

@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import Table from '../../componentes/Table/Table';
 import Pagination from '../../componentes/Table/Pagination';
-import { TableFilterMenu } from '../../componentes/Table/TableFilterMenu';
 import TableSortButton, { type SortDirection } from '../../componentes/Table/TableSortButton';
 import { usePagination } from '../../componentes/Table/usePagination';
 import { Icon } from '../../componentes/Icon';
@@ -12,23 +11,6 @@ import type { CategoryStock, DailyMovementTotals, Movement, MovementType, Produc
 const chartColors = ['#5b8065', '#8eb69a', '#d2a66f', '#7b91b5', '#bd8270', '#9c88b8', '#c4b35e', '#75a9a7'];
 const pieRadius = 42;
 const pieCircumference = 2 * Math.PI * pieRadius;
-const reportDateLabel = new Intl.DateTimeFormat('es-EC', { day: '2-digit', month: 'short', year: 'numeric' });
-
-function getReportDateKey(value: string): string {
-    const date = new Date(value);
-    if (Number.isNaN(date.getTime()))
-        return '';
-    return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
-}
-
-function matchesMovementFilter(movement: Movement, productId: string, type: string, dateFrom: string, dateTo: string): boolean {
-    if (movement.productId !== productId || (type && movement.type !== type))
-        return false;
-    if (!dateFrom && !dateTo)
-        return true;
-    const dateKey = getReportDateKey(movement.createdAt);
-    return Boolean(dateKey) && (!dateFrom || dateKey >= dateFrom) && (!dateTo || dateKey <= dateTo);
-}
 
 function getCategoryStock(products: Product[]): CategoryStock[] {
     const stockByCategory = new Map();
@@ -159,44 +141,15 @@ interface ReportsProps {
 type ReportSortColumn = 'code' | 'name' | 'category' | 'stock' | 'minStock' | 'status';
 
 export default function Reports({ products, movements, lowStock, onExportCsv, onExportPdf }: ReportsProps) {
-    const [filters, setFilters] = useState({
-        category: '',
-        stock: '',
-        status: '',
-        type: '',
-        dateFrom: '',
-        dateTo: '',
-    });
     const [downloadOpen, setDownloadOpen] = useState(false);
     const [sort, setSort] = useState<{ column: ReportSortColumn; direction: SortDirection } | null>(null);
     const entries = movements.filter((movement) => movement.type === 'entrada').reduce((sum, item) => sum + item.quantity, 0);
     const exits = movements.filter((movement) => movement.type === 'salida').reduce((sum, item) => sum + item.quantity, 0);
-    const categories = [...new Set(products.map((product) => product.category).filter(Boolean))]
-        .sort((a, b) => a.localeCompare(b, 'es'));
     const activeProducts = products.filter((product) => product.active);
-    const activeCount = products.filter((product) => product.active).length;
-    const inactiveCount = products.length - activeCount;
     const categoryStock = getCategoryStock(activeProducts);
     const recentMovementTotals = getRecentMovementTotals(movements);
-    const dateFilterLabel = filters.dateFrom && filters.dateTo
-        ? `${reportDateLabel.format(new Date(`${filters.dateFrom}T00:00:00`))} – ${reportDateLabel.format(new Date(`${filters.dateTo}T00:00:00`))}`
-        : filters.dateFrom
-            ? `Desde ${reportDateLabel.format(new Date(`${filters.dateFrom}T00:00:00`))}`
-            : filters.dateTo
-                ? `Hasta ${reportDateLabel.format(new Date(`${filters.dateTo}T00:00:00`))}`
-                : 'Todos';
-    const dateFilterValue = filters.dateFrom && filters.dateTo
-        ? `${filters.dateFrom}|${filters.dateTo}`
-        : filters.dateFrom || filters.dateTo;
-    const filteredProducts = products.filter((product) => {
-        return (!filters.stock || (filters.stock === 'low' ? product.stock <= product.minStock : product.stock > product.minStock))
-            && (!filters.status || product.active === (filters.status === 'active'))
-            && (!filters.category || product.category === filters.category)
-            && (!(filters.type || filters.dateFrom || filters.dateTo)
-                || movements.some((movement) => matchesMovementFilter(movement, product.id, filters.type, filters.dateFrom, filters.dateTo)));
-    });
     const sortedProducts = sort
-        ? [...filteredProducts].sort((a, b) => {
+        ? [...products].sort((a, b) => {
             const comparison = sort.column === 'code' || sort.column === 'name' || sort.column === 'category'
                 ? a[sort.column].localeCompare(b[sort.column], 'es', { sensitivity: 'base', numeric: true })
                 : sort.column === 'stock'
@@ -206,82 +159,8 @@ export default function Reports({ products, movements, lowStock, onExportCsv, on
                         : (a.active ? 'Activo' : 'Inactivo').localeCompare(b.active ? 'Activo' : 'Inactivo', 'es');
             return sort.direction === 'ascending' ? comparison : -comparison;
         })
-        : filteredProducts;
+        : products;
     const pagination = usePagination(sortedProducts);
-    const filterDefinitions = [
-        {
-            title: 'Stock',
-            value: filters.stock,
-            options: [
-                { value: 'low', label: 'Stock bajo' },
-                { value: 'available', label: 'Sobre el mínimo' },
-            ],
-            onSelect: (stock: string) => setFilters((current) => ({ ...current, stock })),
-        },
-        {
-            title: 'Estado',
-            value: filters.status,
-            options: [
-                { value: 'active', label: `Activos (${activeCount})` },
-                { value: 'inactive', label: `Inactivos (${inactiveCount})` },
-            ],
-            onSelect: (status: string) => setFilters((current) => ({ ...current, status })),
-        },
-        {
-            title: 'Categoría',
-            value: filters.category,
-            options: categories.map((category) => ({ value: category, label: category })),
-            onSelect: (category: string) => setFilters((current) => ({ ...current, category })),
-        },
-        {
-            title: 'Tipo',
-            value: filters.type,
-            options: [
-                { value: 'entrada', label: 'Entrada' },
-                { value: 'salida', label: 'Salida' },
-            ],
-            onSelect: (type: string) => setFilters((current) => ({ ...current, type })),
-        },
-        {
-            title: 'Fecha',
-            value: dateFilterValue,
-            displayValue: dateFilterLabel,
-            content: (
-                <div className="table-filter-date-range">
-                    <label>
-                        Desde
-                        <input
-                            type="date"
-                            aria-label="Fecha inicial de movimientos"
-                            value={filters.dateFrom}
-                            onChange={(event) => {
-                                const nextDate = event.target.value;
-                                setFilters((current) => ({
-                                    ...current,
-                                    dateFrom: nextDate,
-                                    dateTo: current.dateTo && nextDate && nextDate > current.dateTo ? '' : current.dateTo,
-                                }));
-                            }}
-                        />
-                    </label>
-                    <label>
-                        Hasta
-                        <input
-                            type="date"
-                            aria-label="Fecha final de movimientos"
-                            value={filters.dateTo}
-                            onChange={(event) => {
-                                const nextDate = event.target.value;
-                                setFilters((current) => nextDate && current.dateFrom && nextDate < current.dateFrom
-                                    ? { ...current, dateFrom: nextDate, dateTo: current.dateFrom }
-                                    : { ...current, dateTo: nextDate });
-                            }}
-                        />
-                    </label>
-                </div>
-            ),
-        },
-    ];
     function cycleSort(column: ReportSortColumn) {
         setSort((current) => {
             if (current?.column !== column) return { column, direction: 'ascending' };
@@ -347,13 +226,8 @@ export default function Reports({ products, movements, lowStock, onExportCsv, on
                         )}
                     </div>
                 </div>
-                <TableFilterMenu
-                    idPrefix="reports"
-                    filters={filterDefinitions}
-                    onClear={() => setFilters({ category: '', stock: '', status: '', type: '', dateFrom: '', dateTo: '' })}
-                />
                 <div className="table-meta">
-                    <span>{filteredProducts.length} de {products.length} productos</span>
+                    <span>{products.length} de {products.length} productos</span>
                 </div>
                 <Table className="mobile-card-table reports-card-table">
                     <table>
@@ -401,7 +275,7 @@ export default function Reports({ products, movements, lowStock, onExportCsv, on
                                 : (
                                     <tr>
                                         <td colSpan={6}>
-                                            <EmptyState title="No hay productos para estos filtros" detail="Cambia los filtros para consultar otros productos." />
+                                            <EmptyState title="Aún no hay productos" detail="Los productos registrados aparecerán aquí." />
                                         </td>
                                     </tr>
                                 )}
@@ -409,7 +283,7 @@ export default function Reports({ products, movements, lowStock, onExportCsv, on
                     </table>
                 </Table>
                 <Pagination
-                    totalItems={filteredProducts.length}
+                    totalItems={products.length}
                     page={pagination.page}
                     pageSize={pagination.pageSize}
                     onPageChange={pagination.setPage}
