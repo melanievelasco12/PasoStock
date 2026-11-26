@@ -149,7 +149,7 @@ export default function Reports({ products, movements, lowStock, onExportCsv, on
     const categoryStock = getCategoryStock(activeProducts);
     const recentMovementTotals = getRecentMovementTotals(movements);
     const sortedProducts = sort
-        ? [...products].sort((a, b) => {
+        ? [...activeProducts].sort((a, b) => {
             const comparison = sort.column === 'code' || sort.column === 'name' || sort.column === 'category'
                 ? a[sort.column].localeCompare(b[sort.column], 'es', { sensitivity: 'base', numeric: true })
                 : sort.column === 'stock'
@@ -159,7 +159,7 @@ export default function Reports({ products, movements, lowStock, onExportCsv, on
                         : (a.active ? 'Activo' : 'Inactivo').localeCompare(b.active ? 'Activo' : 'Inactivo', 'es');
             return sort.direction === 'ascending' ? comparison : -comparison;
         })
-        : products;
+        : activeProducts;
     const pagination = usePagination(sortedProducts);
     function cycleSort(column: ReportSortColumn) {
         setSort((current) => {
