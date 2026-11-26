@@ -57,8 +57,8 @@ export default function Dashboard({ products, movements, lowStock, onProducts, o
           ? a.stock - b.stock
           : stockSort.column === 'minStock'
             ? a.minStock - b.minStock
-            : (a.stock <= a.minStock ? 'Requiere atención' : 'En orden')
-              .localeCompare(b.stock <= b.minStock ? 'Requiere atención' : 'En orden', 'es');
+            : (a.stock < a.minStock ? 'Requiere atención' : 'En orden')
+              .localeCompare(b.stock < b.minStock ? 'Requiere atención' : 'En orden', 'es');
       return stockSort.direction === 'ascending' ? comparison : -comparison;
     })
     : lowStock;
@@ -75,7 +75,7 @@ export default function Dashboard({ products, movements, lowStock, onProducts, o
     <>
       <section className={`stats-grid ${estilos.estadisticas}`}>
         <StatCard label="Productos registrados" value={products.length} icon="box" tone="lavender" detail="En el inventario" />
-        <StatCard label="Productos con stock bajo" value={lowStock.length} icon="bell" tone="peach" detail="En o bajo el mínimo" />
+        <StatCard label="Productos con stock bajo" value={lowStock.length} icon="bell" tone="peach" detail="Por debajo del mínimo" />
         <StatCard label="Unidades ingresadas" value={unidadesEntradas} icon="entrada" tone="mint" detail={`En ${entradas.length} movimientos`} />
         <StatCard label="Unidades retiradas" value={unidadesSalidas} icon="salida" tone="blue" detail={`En ${salidas.length} movimientos`} />
       </section>
@@ -86,7 +86,7 @@ export default function Dashboard({ products, movements, lowStock, onProducts, o
           <div className="panel-heading">
             <div>
               <h2>Productos con stock bajo</h2>
-              <p>Existencias iguales o inferiores al mínimo</p>
+              <p>Existencias por debajo del mínimo</p>
             </div>
             <span className={`warning-pill ${lowStock.length ? estilos.pildoraAlerta : estilos.pildoraSaludable}`}>
               {lowStock.length ? `${lowStock.length} ${lowStock.length === 1 ? 'requiere' : 'requieren'} atención` : 'Todo en orden'}
@@ -97,7 +97,7 @@ export default function Dashboard({ products, movements, lowStock, onProducts, o
             <div className={`empty-state compact-empty ${estilos.vacio}`}>
               <span className="empty-mark"><Icon name="check" /></span>
               <strong>Todo en orden</strong>
-              <p>Ningún producto está en su nivel mínimo.</p>
+              <p>Ningún producto está por debajo de su nivel mínimo.</p>
             </div>
           ) : (
             <Table className={`mobile-card-table ${estilos.scrollTabla}`}>

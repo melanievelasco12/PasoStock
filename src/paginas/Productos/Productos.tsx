@@ -145,7 +145,7 @@ export default function Products({ products, deletableProductIds, hasSearch, onC
                             ? pagination.items.map((product) => (
                                 <tr
                                     key={product.id}
-                                    className={product.active && product.stock <= product.minStock ? 'low-stock-row' : undefined}
+                                    className={product.active && product.stock < product.minStock ? 'low-stock-row' : undefined}
                                 >
                                     <td data-label="Categoría"><span className="category-pill">{product.category}</span></td>
                                     <td data-label="Producto">
@@ -157,7 +157,7 @@ export default function Products({ products, deletableProductIds, hasSearch, onC
                                     </td>
                                     <td data-label="Precio"><strong className="product-price">{productPrice.format(product.price)}</strong></td>
                                     <td className="catalog-stock-cell" data-label="Stock actual">
-                                        <strong className={`catalog-stock${product.stock <= product.minStock ? ' low' : ''}`}>{product.stock}</strong>{' '}
+                                        <strong className={`catalog-stock${product.stock < product.minStock ? ' low' : ''}`}>{product.stock}</strong>{' '}
                                         <span className="muted-unit catalog-stock-unit">
                                             {product.unit === 'unidad' && product.unitAmount === 1
                                                 ? 'unidades'

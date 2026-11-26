@@ -418,7 +418,7 @@ function App() {
         return _jsx(AccessErrorScreen, { message: firestoreError, onRetry: () => window.location.reload(), onSignOut: handleSignOut });
     }
     const activeProducts = products.filter((product) => product.active);
-    const lowStock = activeProducts.filter((product) => product.stock <= product.minStock);
+    const lowStock = activeProducts.filter((product) => product.stock < product.minStock);
     const totalUnits = activeProducts.reduce((sum, product) => sum + product.stock, 0);
     const displayName = displayUserName(profileName, user.email);
     const filteredProducts = products.filter((product) => {
@@ -689,7 +689,7 @@ function App() {
                 String(product.stock),
                 formatUnitAmount(product.unitAmount, product.unit),
                 String(product.minStock),
-                product.stock <= product.minStock ? 'Stock bajo' : 'Disponible',
+                product.stock < product.minStock ? 'Stock bajo' : 'Disponible',
             ]),
         ];
         const csv = `\uFEFF${rows.map((row) => row.map((cell) => `"${cell.replaceAll('"', '""')}"`).join(';')).join('\r\n')}`;
@@ -745,7 +745,7 @@ function App() {
                     String(product.stock),
                     formatUnitAmount(product.unitAmount, product.unit),
                     String(product.minStock),
-                    product.stock <= product.minStock ? 'Stock bajo' : 'Disponible',
+                    product.stock < product.minStock ? 'Stock bajo' : 'Disponible',
                 ];
                 const lines = values.map((value, index) => pdf.splitTextToSize(value || '-', widths[index] - 4));
                 const rowHeight = Math.max(9, ...lines.map((cellLines) => cellLines.length * 4 + 4));

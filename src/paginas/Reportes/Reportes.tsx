@@ -256,12 +256,12 @@ export default function Reports({ products, movements, lowStock, onExportCsv, on
                         <tbody>
                             {pagination.items.length
                                 ? pagination.items.map((product) => (
-                                    <tr key={product.id} className={product.stock <= product.minStock ? 'low-stock-row' : undefined}>
+                                    <tr key={product.id} className={product.stock < product.minStock ? 'low-stock-row' : undefined}>
                                         <td className="code-cell" data-label="Código">{product.code}</td>
                                         <td data-label="Producto"><strong>{product.name}</strong></td>
                                         <td data-label="Categoría">{product.category}</td>
                                         <td className="report-stock-cell" data-label="Existencias">
-                                            <strong className={`catalog-stock${product.stock <= product.minStock ? ' low' : ''}`}>{product.stock}</strong>
+                                            <strong className={`catalog-stock${product.stock < product.minStock ? ' low' : ''}`}>{product.stock}</strong>
                                             <span className="muted-unit report-stock-unit">
                                                 {product.unit === 'unidad' && product.unitAmount === 1
                                                     ? 'unidades'
@@ -269,7 +269,7 @@ export default function Reports({ products, movements, lowStock, onExportCsv, on
                                             </span>
                                         </td>
                                         <td data-label="Mínimo">{product.minStock} unidades</td>
-                                        <td data-label="Estado"><StatusBadge low={product.stock <= product.minStock} /></td>
+                                        <td data-label="Estado"><StatusBadge low={product.stock < product.minStock} /></td>
                                     </tr>
                                 ))
                                 : (
