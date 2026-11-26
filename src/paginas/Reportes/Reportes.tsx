@@ -227,7 +227,7 @@ export default function Reports({ products, movements, lowStock, onExportCsv, on
                     </div>
                 </div>
                 <div className="table-meta">
-                    <span>{products.length} de {products.length} productos</span>
+                    <span>{sortedProducts.length} de {sortedProducts.length} productos</span>
                 </div>
                 <Table className="mobile-card-table reports-card-table">
                     <table>
@@ -283,7 +283,7 @@ export default function Reports({ products, movements, lowStock, onExportCsv, on
                     </table>
                 </Table>
                 <Pagination
-                    totalItems={products.length}
+                    totalItems={sortedProducts.length}
                     page={pagination.page}
                     pageSize={pagination.pageSize}
                     onPageChange={pagination.setPage}
